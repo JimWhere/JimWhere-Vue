@@ -5,7 +5,9 @@
       <div class="drawer-header">
         <div class="user-info">
           <div class="label">유저ID</div>
-          <div class="id">{{ user.profile?.name || '게스트' }}</div>
+          <div class="id">
+            {{ auth.isLoggedIn ? auth.user.pName + ' (' + auth.user.userId + ')' : '게스트' }}
+          </div>
         </div>
         <button class="close-btn" @click="ui.closeSidebar">&times;</button>
       </div>
@@ -17,8 +19,18 @@
       <div class="spacer"></div>
       <div class="drawer-footer">
         <div class="auth-links">
-          <a href="/login">로그인</a>
-          <a href="/register">회원가입</a>
+
+            <!-- 로그인 상태 : 로그아웃 표시 -->
+            <template v-if="auth.isLoggedIn">
+              <a href="#" @click.prevent="handleLogout">로그아웃</a>
+            </template>
+
+            <!-- 비로그인 상태 : 로그인 / 회원가입 -->
+            <template v-else>
+              <a href="/login">로그인</a>
+              <a href="/register">회원가입</a>
+            </template>
+
         </div>
         <div>© JimWhere</div>
       </div>
@@ -28,12 +40,18 @@
 
 <script setup>
 import { useUiStore } from '@/stores/ui'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore } from "@/stores/authStore"
 import { useRouter } from 'vue-router'
 
 const ui = useUiStore()
-const user = useUserStore()
+const auth = useAuthStore()
 const router = useRouter()
+
+function handleLogout() {
+  auth.logout();          // Pinia , refreshToken 쿠키 삭제
+  router.push("/login");  // 로그인 페이지로 이동
+  ui.closeSidebar();      // 사이드바 닫기
+}
 
 const menuItems = [
   { text: '출입', to: '/' },       

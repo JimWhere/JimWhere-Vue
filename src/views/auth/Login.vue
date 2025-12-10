@@ -24,27 +24,39 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
-import { useRouter } from "vue-router"
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
-const id = ref("")
-const password = ref("")
-const router = useRouter()
+const id = ref("");
+const password = ref("");
+const router = useRouter();
+const authStore = useAuthStore();
 
-const login = () => {
+const login = async () => {
   if (!id.value || !password.value) {
-    alert("아이디와 비밀번호를 모두 입력해주세요.")
-    return
+    alert("아이디와 비밀번호를 입력해주세요.");
+    return;
   }
 
-  alert(`로그인 시도됨\n아이디: ${id.value}\n비밀번호: ${password.value}`)
-}
+  const res = await authStore.login({
+    userEmail: id.value,     // 백엔드에서 userId로 받음
+    password: password.value,
+  });
 
+  if (res.success) {
+    alert("로그인 성공!");
+    router.push("/"); // 원하는 경로로 이동
+  } else {
+    alert(res.message || "로그인 실패");
+  }
+};
 
 const goRegister = () => {
-  router.push("/register")
-}
+  router.push("/register");
+};
 </script>
+
 
 <style scoped>
 .auth-container {
