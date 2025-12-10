@@ -35,7 +35,7 @@ const props = defineProps({ avatar: { type: String, default: '' } })
 </script>
 
 <style scoped>
-@import "@/styles/theme.css";
+@import "@/assets/shared/styles/theme.css";
 
 .sw-header{
   width:100%;
