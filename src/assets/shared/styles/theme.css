@@ -1,0 +1,72 @@
+/* Shared theme for JimWhere (Element Plus friendly) */
+:root{
+  --color-primary: #8fd3f6;    /* light sky blue */
+  --color-primary-600: #5bb8e6;
+  --color-primary-800: #2f97c9;
+  --color-accent: #ffd3a5;     /* soft accent */
+  --color-danger: #ff7b7b;     /* delete red */
+  --bg-gradient-start: rgba(143,211,246,0.18);
+  --bg-gradient-mid: rgba(223,243,251,0.6);
+  --bg-gradient-end: rgba(255,255,255,0.65);
+  --border-radius: 10px;
+  --control-border: rgba(0,0,0,0.12);
+  --muted: rgba(0,0,0,0.45);
+}
+
+/* Page helpers */
+.page-bg{
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 40%, var(--bg-gradient-end) 100%);
+  min-height:100vh;
+}
+
+/* Element Plus overrides */
+:root { --el-color-primary: var(--color-primary); }
+
+.el-button--primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary-600) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  border-radius: var(--border-radius) !important;
+}
+.el-button--primary.is-round { border-radius: 999px !important; }
+
+.el-button--danger {
+  background-color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+  color: #fff !important;
+}
+
+.el-input__inner {
+  border-radius: calc(var(--border-radius) - 2px);
+  border: 2px solid var(--control-border);
+  background: #fff;
+}
+
+.el-input::placeholder { color: var(--muted); }
+
+.el-card {
+  border-radius: 14px;
+}
+
+/* Common component size helpers */
+.sz-xs { --sw-size: 24px; }
+.sz-small { --sw-size: 32px; }
+.sz-medium { --sw-size: 40px; }
+.sz-large { --sw-size: 56px; }
+
+/* Utility classes */
+.btn-block { display:block; width:100%; }
+.rounded { border-radius: var(--border-radius); }
+.text-muted { color: var(--muted); }
+
+/* Form layout helpers */
+.form-row{ display:flex; gap:12px; align-items:center }
+.form-row .form-item{ flex:1 }
+
+/* Validation */
+.validation-msg.error { color: var(--color-danger); }
+.validation-msg.success { color: #28a745; }
+
+/* Avatar default border */
+.el-avatar { border: 1px solid rgba(0,0,0,0.06); }
