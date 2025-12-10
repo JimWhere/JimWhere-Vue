@@ -1,13 +1,16 @@
 <script setup lang="ts">
-
+import RoomCardList from "@/views/mainPage/RoomCardList.vue";
 </script>
 
 <template>
   <div class="home">
-    <h1>홈 페이지</h1>
-    <p>여기는 JimWhere 메인 페이지입니다.</p>
+    <RoomCardList />
   </div>
 </template>
 <style scoped>
+.home {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
 
 </style>
