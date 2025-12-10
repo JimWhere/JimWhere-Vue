@@ -120,7 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
             setAccessToken(data.accessToken);
             setUserFromToken(data.accessToken);
 
-            //유한세가 추가
+
             await fetchUserMe();
 
             return { success: true };
