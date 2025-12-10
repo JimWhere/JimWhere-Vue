@@ -30,14 +30,7 @@
   height: 100%;
 }
 
-/* 상단 */
-.header {
-  height: 60px;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-}
+
 
 /* 본문 영역 */
 .content-area {
@@ -48,8 +41,11 @@
 /* 왼쪽 메뉴 */
 .sidebar {
   width: 200px;
-  border-right: 1px solid #ddd;
+  border: 1px solid #bbecff;
   padding: 20px;
+  background: white;
+  border-radius: 15px;
+
 }
 
 .menu {
@@ -66,6 +62,10 @@
 /* 오른쪽 페이지 내용 */
 .main {
   flex: 1;
-  padding: 30px;
+  padding: 0 10px;
+  background: white;
+  border: 1px solid #bbecff;
+  min-height: calc(100vh - 100px);
+  border-radius: 15px;
 }
 </style>
