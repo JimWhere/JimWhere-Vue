@@ -1,77 +1,47 @@
 <template>
-  <header class="sw-header">
-    <div class="sw-header-inner">
-      <div class="left">
-        <button class="icon-btn" @click="$emit('toggle-menu')" aria-label="menu">
-          <span class="hamburger"/>
-        </button>
+  <header class="sw-topbar">
+    <div class="sw-topbar-inner">
+      <button class="menu-btn" @click="$emit('toggle-menu')" aria-label="menu">
+        <span class="hamburger" />
+      </button>
+
+      <div class="logo-wrap">
+        <img :src="logo" alt="JimWhere" />
       </div>
 
-      <div class="center">
-        <img :src="logo" alt="JimWhere" class="brand"/>
-      </div>
-
-      <div class="right">
-        <el-dropdown trigger="click">
-          <span class="user-wrap">
-            <el-avatar :size="36" :src="avatar" />
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item>프로필</el-dropdown-item>
-              <el-dropdown-item>설정</el-dropdown-item>
-              <el-dropdown-item divided @click="$emit('logout')">로그아웃</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
+      <div class="spacer" />
     </div>
   </header>
 </template>
 
 <script setup>
 import logo from '@/assets/shared/logo/logo.png'
-const props = defineProps({ avatar: { type: String, default: '' } })
 </script>
 
 <style scoped>
 @import "@/assets/shared/styles/theme.css";
 
-.sw-header{
-  width:100%;
-  padding:12px 20px;
-  position:relative;
+.sw-topbar{ width:100%; padding:10px 18px; box-sizing:border-box }
+.sw-topbar-inner{
+  max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+  background: #ffffff; /* changed to solid white */
+  border-radius:12px; padding:8px 12px; box-shadow: 0 1px 0 rgba(0,0,0,0.04) inset;
+  border:1px solid rgba(91,184,230,0.08);
 }
 
-.sw-header-inner{
-  max-width:1200px;
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background: linear-gradient(180deg, rgba(143,211,246,0.12), rgba(255,255,255,0.6));
-  border-radius: 12px;
-  padding:8px 16px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04) inset;
-}
+.menu-btn{ width:42px; height:42px; border-radius:10px; background:#fff; border:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center }
+.menu-btn .hamburger{ display:block; width:18px; height:2px; background:var(--color-primary-800); position:relative }
+.menu-btn .hamburger::before, .menu-btn .hamburger::after{ content:''; position:absolute; left:0; width:18px; height:2px; background:var(--color-primary-800) }
+.menu-btn .hamburger::before{ top:-6px }
+.menu-btn .hamburger::after{ top:6px }
 
-.left, .center, .right{ display:flex; align-items:center }
-.center{ flex:1; justify-content:center }
-.right{ justify-content:flex-end }
+.logo-wrap{ display:flex; align-items:center; justify-content:center; flex:1 }
+.logo-wrap img{ height:28px; object-fit:contain }
 
-.brand{ height:36px; object-fit:contain }
-
-.icon-btn{ background:#fff; border:1px solid rgba(0,0,0,0.06); padding:8px; border-radius:8px; cursor:pointer }
-.icon-btn .hamburger{ display:block; width:18px; height:2px; background:var(--color-primary-800); position:relative }
-.icon-btn .hamburger::before, .icon-btn .hamburger::after{ content:''; position:absolute; left:0; width:18px; height:2px; background:var(--color-primary-800) }
-.icon-btn .hamburger::before{ top:-6px }
-.icon-btn .hamburger::after{ top:6px }
-
-.user-wrap{ display:inline-flex; align-items:center; gap:8px; cursor:pointer }
+.spacer{ width:42px; height:42px }
 
 @media (max-width:720px){
-  .center{ justify-content:flex-start }
-  .sw-header-inner{ padding:8px }
-  .brand{ height:28px }
+  .sw-topbar-inner{ padding:6px 8px }
+  .logo-wrap img{ height:24px }
 }
 </style>
