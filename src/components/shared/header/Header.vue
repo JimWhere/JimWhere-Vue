@@ -21,7 +21,7 @@ import logo from '@/assets/shared/logo/logo.png'
 <style scoped>
 @import "@/assets/shared/styles/theme.css";
 
-.sw-topbar{ width:100%; padding:10px 0; box-sizing:border-box }
+.sw-topbar{ width:100%; padding:10px 0; box-sizing:border-box;}
 .sw-topbar-inner{
   margin:0 auto; display:flex; align-items:center; justify-content:space-between;
   background: #ffffff; /* changed to solid white */
