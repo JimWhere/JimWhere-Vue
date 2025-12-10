@@ -77,6 +77,7 @@ const user = ref({
   font-weight: bold;
   margin-bottom: 20px;
   color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
 /* 정보 줄 */
