@@ -1,14 +1,12 @@
 <template>
   <div class="mypage-layout">
 
-    <!-- 상단 헤더 -->
-    <header class="header">
-      <h1>JimWhere</h1>
-    </header>
 
     <div class="content-area">
       <!-- 왼쪽 사이드바 -->
       <aside class="sidebar">
+        <div>마이페이지</div>
+        <br><hr>
         <router-link to="/mypage/user" class="menu">유저정보</router-link>
         <router-link to="/mypage/entry" class="menu">출입내역</router-link>
         <router-link to="/mypage/inventory" class="menu">재고 현황</router-link>
