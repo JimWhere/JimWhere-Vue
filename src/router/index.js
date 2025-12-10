@@ -12,7 +12,6 @@ import Home from '@/views/Home.vue'
 
 //admin
 import AdminLayout from "@/components/layouts/admin/AdminLayout.vue"
-import AdminDashboard from "@/views/admin/AdminDashboard.vue"
 import AdminHome from "@/views/admin/AdminHome.vue"
 import AdminUsers from "@/views/admin/AdminUsers.vue"
 import AdminEntry from "@/views/admin/AdminEntry.vue"
