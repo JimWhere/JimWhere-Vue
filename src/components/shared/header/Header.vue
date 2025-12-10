@@ -21,9 +21,9 @@ import logo from '@/assets/shared/logo/logo.png'
 <style scoped>
 @import "@/assets/shared/styles/theme.css";
 
-.sw-topbar{ width:100%; padding:10px 18px; box-sizing:border-box }
+.sw-topbar{ width:100%; padding:10px 0; box-sizing:border-box }
 .sw-topbar-inner{
-  max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+  margin:0 auto; display:flex; align-items:center; justify-content:space-between;
   background: #ffffff; /* changed to solid white */
   border-radius:12px; padding:8px 12px; box-shadow: 0 1px 0 rgba(0,0,0,0.04) inset;
   border:1px solid rgba(91,184,230,0.08);

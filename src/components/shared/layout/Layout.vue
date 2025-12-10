@@ -17,7 +17,7 @@
 <style scoped>
 @import "@/assets/shared/styles/theme.css";
 
-.layout-root{ position:relative; min-height:100vh; }
+.layout-root{ position:relative; min-height:100vh; padding:5px 10px; }
 
 .bg-gradient{
   position:fixed; inset:0; z-index:0;
@@ -25,8 +25,8 @@
 }
 
 .page-wrap{
-  position:relative; z-index:1; padding:22px 18px; box-sizing:border-box; min-height:100vh;
-  display:flex; flex-direction:column; align-items:center;
+  position:relative; z-index:1; padding:10px 0; box-sizing:border-box; min-height:100vh;
+  display:flex; flex-direction:column;
 }
 
 /* leave top room for header visual */
