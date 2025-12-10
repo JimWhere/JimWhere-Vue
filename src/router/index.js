@@ -19,6 +19,7 @@ import AdminInventory from "@/views/admin/AdminInventory.vue"
 import AdminReservations from "@/views/admin/AdminReservations.vue"
 import AdminInquiry from "@/views/admin/AdminInquiry.vue"
 import AdminNotice from "@/views/admin/AdminNotice.vue"
+import AdminLogin from "@/views/auth/AdminLogin.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,12 @@ const router = createRouter({
                 { path: "inquiry", component: AdminInquiry },
                 { path: "notice", component: AdminNotice },
             ],
+        },
+
+        {
+            path: "/admin/login",
+            name: "AdminLogin",
+            component: AdminLogin
         },
 
         {
