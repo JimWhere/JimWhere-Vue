@@ -82,6 +82,7 @@ const router = createRouter({
                 { path: "inquiry", component: Inquiry },
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
             ]
+
         }
     ],
 })
