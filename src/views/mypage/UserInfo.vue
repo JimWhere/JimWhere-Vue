@@ -34,6 +34,7 @@ const updatePhone = async () => {
     user.value.userPhonNumber = newPhone.value;
     editingPhone.value = false;
 
+
   } catch (e) {
     console.error("전화번호 수정 실패", e);
     alert("전화번호 수정 실패");
