@@ -22,7 +22,9 @@ import AdminInventory from "@/views/admin/AdminInventory.vue"
 import AdminReservations from "@/views/admin/AdminReservations.vue"
 import AdminInquiry from "@/views/admin/AdminInquiry.vue"
 import AdminNotice from "@/views/admin/AdminNotice.vue"
-import AdminLogin from "@/views/auth/AdminLogin.vue";
+import {useAuthStore} from "@/stores/authStore.js";
+import {nextTick} from "vue";
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,10 +36,8 @@ const router = createRouter({
             component: UIPreview
         },
 
-        {
-            path: "/",
-            component: Home
-        },
+        { path: "/", name: "Home", component: Home },
+        { path: "/home", redirect: "/" },
 
         // admin
         {
@@ -53,12 +53,13 @@ const router = createRouter({
                 { path: "inquiry", component: AdminInquiry },
                 { path: "notice", component: AdminNotice },
             ],
+            meta: { requiresAdmin: true }
         },
 
         {
             path: "/admin/login",
             name: "AdminLogin",
-            component: AdminLogin
+            component: () => import("@/views/auth/AdminLogin.vue")
         },
 
         {
@@ -84,5 +85,65 @@ const router = createRouter({
         }
     ],
 })
+
+// admin 라우터가드
+router.beforeEach(async (to, from) => {
+    const auth = useAuthStore()
+    const isLoggedIn = !!auth.user
+    const isAdmin = auth.user?.role === "ADMIN"
+
+    /* ============================
+       0) 비로그인 상태 처리
+       ============================ */
+    if (!isLoggedIn) {
+        // 비로그인 상태에서는 로그인 페이지는 모두 허용
+        if (to.path === "/login" || to.name === "AdminLogin") {
+            return true
+        }
+
+        // 비로그인 상태에서 /admin/* 접근 시 → 관리자 로그인 요구
+        if (to.meta.requiresAdmin) {
+            alert("관리자 로그인이 필요합니다.")
+            await nextTick()
+            return { name: "AdminLogin" }
+        }
+
+        // 그 외 페이지는 모두 허용
+        return true
+    }
+
+    /* ============================
+       1) 로그인한 상태에서 /login 접근 차단
+       ============================ */
+    if (to.path === "/login") {
+        if (isAdmin) return { path: "/admin/home" }
+        return { path: "/" } // 일반유저는 홈으로
+    }
+
+    /* ============================
+       2) 로그인한 상태에서 /admin/login 접근 차단
+       ============================ */
+    if (to.name === "AdminLogin") {
+        if (isAdmin) return { path: "/admin/home" }
+
+        alert("관리자만 접근할 수 있습니다.")
+        await nextTick()
+        return { path: "/" }
+    }
+
+    /* ============================
+       3) 로그인 상태에서 /admin/* 보호
+       ============================ */
+    if (to.meta.requiresAdmin) {
+        if (!isAdmin) {
+            alert("관리자만 접근할 수 있습니다.")
+            await nextTick()
+            return { path: "/" }
+        }
+    }
+
+    return true
+})
+
 
 export default router
