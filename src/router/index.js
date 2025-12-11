@@ -28,6 +28,7 @@ import {nextTick} from "vue";
 
 //entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
+import EntryRequestView from "@/views/entry/EntryRequestView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -92,6 +93,12 @@ const router = createRouter({
             name: 'EntryQr',
             component: EntryQrView,
             meta: {hideHeader: true},
+        },
+
+        {
+            path: '/entry/request',
+            name: 'EntryRequest',
+            component: EntryRequestView
         }
     ],
 })

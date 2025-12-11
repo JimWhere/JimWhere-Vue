@@ -54,7 +54,7 @@ function handleLogout() {
 }
 
 const menuItems = [
-  { text: '출입', to: '/' },       
+  { text: '출입', to: '/entry/request' },
   { text: '공지사항', to: '/notice' }, 
   { text: '마이페이지', to: '/mypage/user' },
   { text: '문의하기', to: '/inquiry' },
