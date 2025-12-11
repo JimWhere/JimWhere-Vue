@@ -24,6 +24,9 @@ import AdminInquiry from "@/views/admin/AdminInquiry.vue"
 import AdminNotice from "@/views/admin/AdminNotice.vue"
 import AdminLogin from "@/views/auth/AdminLogin.vue";
 
+//entry
+import EntryQrView from "@/views/entry/EntryQrView.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -81,6 +84,13 @@ const router = createRouter({
                 { path: "inquiry", component: Inquiry },
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
             ]
+        },
+
+        {
+            path: '/entry/qr',
+            name: 'EntryQr',
+            component: EntryQrView,
+            meta: {hideHeader: true},
         }
     ],
 })
