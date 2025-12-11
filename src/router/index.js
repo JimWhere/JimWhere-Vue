@@ -24,10 +24,20 @@ import AdminInquiry from "@/views/admin/AdminInquiry.vue"
 import AdminNotice from "@/views/admin/AdminNotice.vue"
 import {useAuthStore} from "@/stores/authStore.js";
 import {nextTick} from "vue";
+import InquiryCreate from "@/views/mypage/InquiryCreate.vue";
+import AdminNoticeDetail from "@/views/admin/AdminNoticeDetail.vue";
+import AdminNoticeCreate from "@/views/admin/AdminNoticeCreate.vue";
+import AdminInquiryDetail from "@/views/admin/AdminInquiryDetail.vue";
+import Notice from "@/views/notice/Notice.vue";
+import NoticeDetail from "@/views/notice/NoticeDetail.vue";
 
 
 //entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
+import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
+import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
+import EntryHistoryDetail from "@/views/mypage/EntryHistoryDetail.vue";
+import AdminEntryDetail from "@/views/admin/AdminEntryDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,7 +51,9 @@ const router = createRouter({
 
         { path: "/", name: "Home", component: Home },
         { path: "/home", redirect: "/" },
-
+        { path: "/notice",name:'Notice', component: Notice },
+        { path: "/notice/detail",name:'NoticeDetail', component: NoticeDetail },
+        { path: "/inquiry",name:'MainInquiryCreate', component: MainInquiryCreate },
         // admin
         {
             path: "/admin",
@@ -51,12 +63,15 @@ const router = createRouter({
                 { path: "home", component: AdminHome },
                 { path: "users", component: AdminUsers },
                 { path: "entry", component: AdminEntry },
+                { path: "entry/detail",name:'AdminEntryDetail', component: AdminEntryDetail },
                 { path: "inventory", component: AdminInventory },
                 { path: "reservations", component: AdminReservations },
-                { path: "inquiry", component: AdminInquiry },
-                { path: "notice", component: AdminNotice },
+                { path: "inquiry", name:'AdminInquiry',component: AdminInquiry },
+                { path: "inquiry/detail",name:'AdminInquiryDetail', component: AdminInquiryDetail },
+                { path: "notice",name:'AdminNotice', component: AdminNotice },
+                { path: "notice/detail",name:'AdminNoticeDetail', component: AdminNoticeDetail },
+                { path: "notice/create",name:'AdminNoticeCreate', component: AdminNoticeCreate },
             ],
-            meta: { requiresAdmin: true }
         },
 
         {
@@ -80,9 +95,13 @@ const router = createRouter({
             children: [
                 { path: "user", component: UserInfo },
                 { path: "entry", component: EntryHistory },
+                { path: "entry/detail",name:'EntryHistoryDetail', component: EntryHistoryDetail },
                 { path: "reservations", component: Reservations },
                 { path: "inventory", component: Inventory },
-                { path: "inquiry", component: Inquiry },
+                { path: "inquiry", name:'Inquiry',component: Inquiry },
+                { path: "inquiry/create",name:'InquiryCreate', component: InquiryCreate },
+                { path: "inquiry/detail",name:'InquiryDetail', component: InquiryDetail },
+
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
             ]
         },

@@ -3,10 +3,6 @@
 
     <div class="notice__header">
       <h2>공지사항 관리</h2>
-
-      <el-button type="primary" size="small" @click="goCreate()" class="noticeCreate">
-        공지사항 생성
-      </el-button>
     </div>
 
 
@@ -82,7 +78,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { noticeAll} from "@/api/admin.js";
+import {noticeAll} from "@/api/admin.js";
 
 const router = useRouter()
 
@@ -116,12 +112,9 @@ const fetchNoticeList = async () => {
 
 const goDetail = (row) => {
   router.push({
-    name: "AdminNoticeDetail",
+    name: "NoticeDetail",
     query: { noticeCode: row.noticeCode }
   })
-}
-const goCreate = () => {
-  router.push({name: "AdminNoticeCreate"});
 }
 
 const handlePageChange = (newPage) => {

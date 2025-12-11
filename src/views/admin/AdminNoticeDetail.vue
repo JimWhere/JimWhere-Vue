@@ -1,0 +1,174 @@
+<template>
+  <div class="notice-detail">
+    <h2 class="notice-detail__title">공지사항 관리</h2>
+
+    <el-card class="notice-detail__card" shadow="never">
+
+      <!-- 공지사항 제목 -->
+      <div class="notice-detail__section">
+        <label class="notice-detail__label">공지사항 제목</label>
+        <el-input
+            v-model="title"
+            :disabled="!editMode"
+            class="notice-detail__input"
+        />
+      </div>
+
+      <!-- 공지사항 내용 -->
+      <div class="notice-detail__section">
+        <label class="notice-detail__label">공지사항 내용</label>
+        <el-input
+            v-model="content"
+            :disabled="!editMode"
+            type="textarea"
+            :rows="10"
+            class="notice-detail__textarea"
+        />
+      </div>
+
+      <!-- 버튼 영역 -->
+      <div class="notice-detail__btn-wrap">
+
+        <!-- 수정모드 아닐 때 -->
+        <template v-if="!editMode">
+          <el-button type="danger" @click="deleteNotice">삭제</el-button>
+          <el-button type="primary" @click="editMode = true">수정</el-button>
+        </template>
+
+        <!-- 수정모드일 때 -->
+        <template v-else>
+          <el-button @click="cancelEdit">취소</el-button>
+          <el-button type="primary" @click="saveNotice">저장</el-button>
+        </template>
+
+        <el-button @click="goBack">목록으로</el-button>
+      </div>
+
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {adminNoticeDelete, adminNoticeUpdate, noticeDetail} from "@/api/admin.js";
+
+
+const route = useRoute();
+const router = useRouter();
+
+const editMode = ref(false);
+
+const originalTitle = ref("");
+const originalContent = ref("");
+
+const title = ref("");
+const content = ref("");
+const notice=ref({
+  noticeTitle:"",
+  noticeContent:"",
+})
+
+const fetchDetail = async () => {
+  try {
+    const res = await noticeDetail(route.query.noticeCode);
+    const data = res.data.data;
+
+    title.value = originalTitle.value = data.noticeTitle;
+    content.value = originalContent.value = data.noticeContent;
+
+  } catch (err) {
+    console.error("공지사항 상세 조회 실패", err);
+  }
+};
+
+const cancelEdit = () => {
+  title.value = originalTitle.value;
+  content.value = originalContent.value;
+  editMode.value = false;
+};
+
+const saveNotice = async () => {
+  try {
+   await adminNoticeUpdate(route.query.noticeCode, {
+      noticeTitle: title.value,
+      noticeContent: content.value,
+    });
+
+    // 저장 후 원본 갱신
+    originalTitle.value = title.value;
+    originalContent.value = content.value;
+
+    editMode.value = false;
+    alert("수정 성공!");
+
+  } catch (err) {
+    console.error("수정 실패", err);
+    alert("수정 실패");
+  }
+};
+
+const deleteNotice = async () => {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+   await adminNoticeDelete(route.query.noticeCode);
+    alert("삭제 완료!");
+    router.push({ name: "AdminNotice" });
+
+  } catch (err) {
+    console.error("삭제 실패", err);
+    alert("삭제 실패");
+  }
+};
+
+const goBack = () => {
+  router.push({ name: "AdminNotice" });
+};
+
+onMounted(fetchDetail);
+</script>
+
+<style scoped>
+.notice-detail {
+  background: #fff;
+  padding: 24px 32px;
+  border-radius: 12px;
+}
+
+.notice-detail__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #5a9dfb;
+  margin-bottom: 16px;
+}
+
+.notice-detail__card {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.notice-detail__section {
+  margin-bottom: 20px;
+}
+
+.notice-detail__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.notice-detail__input,
+.notice-detail__textarea {
+  background: #f4f7fc;
+  border-radius: 8px;
+}
+
+.notice-detail__btn-wrap {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+</style>
