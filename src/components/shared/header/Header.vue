@@ -1,12 +1,12 @@
 <template>
   <header class="sw-topbar">
     <div class="sw-topbar-inner">
-      <button class="menu-btn" @click="$emit('toggle-menu')" aria-label="menu">
+      <button class="menu-btn" @click="ui.toggleSidebar" aria-label="menu">
         <span class="hamburger" />
       </button>
 
       <div class="logo-wrap">
-        <img :src="logo" alt="JimWhere" />
+        <img :src="logo" alt="JimWhere" @click="goHome" />
       </div>
 
       <div class="spacer" />
@@ -16,6 +16,18 @@
 
 <script setup>
 import logo from '@/assets/shared/logo/logo.png'
+import { useUiStore } from '@/stores/ui'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const ui = useUiStore()
+const user = useAuthStore()
+
+const goHome = () => {
+  router.push("/")
+}
+
 </script>
 
 <style scoped>
@@ -36,12 +48,12 @@ import logo from '@/assets/shared/logo/logo.png'
 .menu-btn .hamburger::after{ top:6px }
 
 .logo-wrap{ display:flex; align-items:center; justify-content:center; flex:1 }
-.logo-wrap img{ height:28px; object-fit:contain }
+.logo-wrap img{ height:40px; object-fit:contain; cursor:pointer;}
 
 .spacer{ width:42px; height:42px }
 
 @media (max-width:720px){
   .sw-topbar-inner{ padding:6px 8px }
-  .logo-wrap img{ height:24px }
+  .logo-wrap img{ height:32px }
 }
 </style>

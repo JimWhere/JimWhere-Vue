@@ -3,14 +3,22 @@
     <div class="bg-gradient" />
 
     <div class="header-wrap">
+      <!-- header slot (Header handles opening the sidebar via store) -->
       <slot name="header" />
     </div>
 
     <div class="page-wrap">
       <slot />
     </div>
+
+    <!-- shared sidebar (uses global store internally) -->
+    <Sidebar />
   </div>
 </template>
+
+<script setup>
+import Sidebar from '@/components/shared/sidebar/Sidebar.vue'
+</script>
 
 <style scoped>
 .layout-root {

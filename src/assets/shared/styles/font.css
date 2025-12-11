@@ -1,0 +1,13 @@
+/* 공용 폰트 관리 여기서 */
+:root {
+  --app-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --app-font-weight-regular: 400;
+  --app-font-weight-semibold: 600;
+  --app-font-weight-bold: 700;
+}
+
+.app-font {
+  font-family: var(--app-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
+// UI 공용컴포넌트 예시 
+import UIPreview from '@/views/ui/UIView.vue'
+
 // 레이아웃 불러오기
 import MyPageLayout from '@/components/layouts/mypage/MypageLayout.vue'
 
@@ -24,6 +27,13 @@ import AdminLogin from "@/views/auth/AdminLogin.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        // UI 컴포넌트 테스트용
+        {
+            path: '/ui-preview',
+            name: 'UIPreview',
+            component: UIPreview
+        },
+
         {
             path: "/",
             component: Home
