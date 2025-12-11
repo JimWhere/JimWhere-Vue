@@ -41,6 +41,7 @@ const updatePhone = async () => {
   }
 };
 
+
 // 회원 탈퇴 요청
 const withdraw = async () => {
   if (!confirm("정말 탈퇴하시겠습니까? 복구할 수 없습니다.")) return;
