@@ -1,30 +1,34 @@
-import axios from "axios";
+import api from "@/axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:8081/api/v1",
-  withCredentials: true, // 쿠키(refreshToken) 받기 위해 필수
-});
-
-export const loginApi = (userEmail, password) => {
-  return api.post("/auth/login", {
-    userId: userEmail,
-    password: password,
-  });
+// 회원가입
+export const signupApi = (data) => {
+    return api.post("/auth/signup", data);
 };
 
+// 로그인
+export const loginApi = (userId, password) => {
+    return api.post("/auth/login", { userId, password });
+};
+
+// 토큰 재발급
 export const refreshApi = () => api.post("/auth/refresh");
 
+// 로그아웃
 export const logoutApi = () => api.delete("/auth/logout");
 
+// 내 정보 조회
 export const getUserMe = () => api.get("/user/users/me");
 
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+// 아이디 중복 확인
+export const checkDuplicateIdApi = (userId) => {
+    return api.post("/auth/check-duplicate-id", { userId });
+};
+// 전화번호 중복 확인
+export const checkDuplicatePhoneApi = (phone) => {
+    return api.post("/auth/check-duplicate-phone", { phone });
+};
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
+// 사업자번호 중복 확인
+export const checkDuplicateBusinessApi = (businessNumber) =>
+    api.post("/auth/check-duplicate-business", { businessNumber });
