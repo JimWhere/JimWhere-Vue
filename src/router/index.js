@@ -32,6 +32,11 @@ import Notice from "@/views/notice/Notice.vue";
 import NoticeDetail from "@/views/notice/NoticeDetail.vue";
 
 
+import TossPayPage from '@/views/payment/TossPayPage.vue'
+import PaymentSuccess from '@/views/payment/PaymentSuccess.vue'
+import PaymentFail from '@/views/payment/PaymentFail.vue'
+
+
 //entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
 import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
@@ -104,6 +109,22 @@ const router = createRouter({
 
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
             ]
+        },
+
+        {
+            path: '/payments/request',
+            name: 'TossPay',
+            component: TossPayPage,
+        },
+        {
+            path: '/payments/success',
+            name: 'PaymentSuccess',
+            component: PaymentSuccess,
+        },
+        {
+            path: '/payments/fail',
+            name: 'PaymentFail',
+            component: PaymentFail,
         },
 
         {

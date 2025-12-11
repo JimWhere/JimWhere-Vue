@@ -55,3 +55,15 @@ export async function inquiryCreate(request) {
     }}
 );
 }
+
+export async function userReservationList({ page, size }) {
+    return await api.get("/user/reservations", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        params: {
+            page: page - 1,   // 백엔드 Pageable 0-base
+            size: size,
+        },
+    });
+}
