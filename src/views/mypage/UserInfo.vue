@@ -1,19 +1,69 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { getMyUserInfoApi, updateUserPhoneApi, deleteUserApi } from "@/api/userApi";
+import router from "@/router";
+import { useAuthStore } from "@/stores/authStore";
 
-const user = ref({
-  userId: "user01",
-  phone: "010-1234-1234",
-  businessNumber: "211 - 10 -11223",
-  corpName: "짐짐돌돌",
-  ceoName: "김돌리",
-  bizType: "도소매",
+const authStore = useAuthStore();
+const user = ref(null);
+const editingPhone = ref(false);
+const newPhone = ref("");
+
+onMounted(async () => {
+  try {
+    const res = await getMyUserInfoApi();
+    user.value = res.data.data;
+  } catch (e) {
+    console.error("내 정보 조회 실패", e);
+    alert("로그인이 필요합니다.");
+    router.replace("/login");
+  }
 });
+
+// 전화번호 수정 요청
+const updatePhone = async () => {
+  if (!newPhone.value) {
+    return alert("새 전화번호를 입력해주세요.");
+  }
+
+  try {
+    await updateUserPhoneApi(newPhone.value);
+    alert("전화번호 수정 완료!");
+
+    // 화면에 반영
+    user.value.userPhonNumber = newPhone.value;
+    editingPhone.value = false;
+
+
+  } catch (e) {
+    console.error("전화번호 수정 실패", e);
+    alert("전화번호 수정 실패");
+  }
+};
+
+// 회원 탈퇴 요청
+const withdraw = async () => {
+  if (!confirm("정말 탈퇴하시겠습니까? 복구할 수 없습니다.")) return;
+
+  try {
+    await deleteUserApi();
+    alert("탈퇴되었습니다.");
+
+    // 토큰 제거 후 로그인 페이지로 이동
+    authStore.logout();  // 토큰, 사용자 정보, 스토리지 모두 정리 시켜줌
+    router.replace("/login");
+
+
+  } catch (e) {
+    console.error("탈퇴 실패", e);
+    alert("회원 탈퇴 실패");
+  }
+};
+
 </script>
 
 <template>
-  <div class="user-info-container">
-    <!-- 내 정보 -->
+  <div class="user-info-container" v-if="user">
     <section class="info-section">
       <h3 class="section-title">내정보</h3>
 
@@ -22,42 +72,53 @@ const user = ref({
         <span class="value">{{ user.userId }}</span>
       </div>
 
-      <div class="info-row">
+      <div class="info-row phone-row">
         <span class="label">전화번호</span>
-        <span class="value">{{ user.phone }}</span>
+
+        <template v-if="editingPhone">
+          <input
+              v-model="newPhone"
+              class="input"
+              placeholder="새 전화번호 입력"
+          />
+
+          <button class="btn edit small-btn" @click="updatePhone">저장</button>
+          <button class="btn danger small-btn" @click="editingPhone = false">취소</button>
+        </template>
+
+        <template v-else>
+          <span class="value phone-value">{{ user.userPhonNumber }}</span>
+          <button class="btn edit small-btn" @click="editingPhone = true">수정</button>
+        </template>
       </div>
     </section>
 
-    <!-- 사업자 정보 -->
     <section class="info-section">
       <h3 class="section-title">사업자정보</h3>
 
       <div class="info-row">
         <span class="label">사업자번호</span>
-        <span class="value">{{ user.businessNumber }}</span>
+        <span class="value">{{ user.userBusinessNumber }}</span>
       </div>
 
       <div class="info-row">
-        <span class="label">법인명</span>
-        <span class="value">{{ user.corpName }}</span>
+        <span class="label">대표자명</span>
+        <span class="value">{{ user.pname }}</span>
       </div>
 
       <div class="info-row">
-        <span class="label">대표자</span>
-        <span class="value">{{ user.ceoName }}</span>
-      </div>
-
-      <div class="info-row">
-        <span class="label">업태</span>
-        <span class="value">{{ user.bizType }}</span>
+        <span class="label">개업일자</span>
+        <span class="value">{{ user.startDt }}</span>
       </div>
     </section>
 
-    <!-- 버튼 영역 -->
     <div class="button-area">
-      <button class="btn danger">탈퇴</button>
-      <button class="btn edit">수정</button>
+      <button class="btn danger" @click="withdraw">탈퇴</button>
     </div>
+  </div>
+
+  <div v-else>
+    로딩중...
   </div>
 </template>
 
@@ -122,6 +183,28 @@ const user = ref({
   cursor: pointer;
   font-size: 14px;
 }
+
+/* 전화번호 줄 전용 정렬 */
+.phone-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 전화번호 input 박스 너비 조절 */
+.phone-value {
+  width: 180px;
+}
+
+/* 작은 버튼 스타일 */
+.small-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+
 
 /* 탈퇴 버튼 */
 .btn.danger {
