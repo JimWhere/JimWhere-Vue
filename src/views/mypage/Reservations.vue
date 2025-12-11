@@ -85,7 +85,7 @@ import dayjs from 'dayjs'
 
 import AppText from '@/components/shared/basic/AppText.vue'
 import AppPagination from '@/components/shared/form/AppPagination.vue'
-import { userReservationList } from '@/api/myPage.js'   // ✅ 공통 myPage API 사용
+import { userReservationList } from '@/api/myPage.js'
 
 interface UserReservationRow {
   reservationCode: number
@@ -103,7 +103,7 @@ const pageSize = ref(10)
 const totalPages = ref(1)
 const loading = ref(false)
 
-
+// ✅ 공통 API 모듈 사용
 const fetchReservations = async () => {
   loading.value = true
   try {
