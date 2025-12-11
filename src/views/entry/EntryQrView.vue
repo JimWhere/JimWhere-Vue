@@ -443,7 +443,7 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 120px;        /* PNG 크기 맞게 조절 */
+  width: 512px;
   height: auto;
   pointer-events: none;
 }
@@ -527,9 +527,9 @@ onBeforeUnmount(() => {
 }
 
 .entry-logo {
-  width: 90px;   /* 크기 조절 */
+  width: 90px;
   height: auto;
-  opacity: 0.9;  /* 너무 강조되면 alpha 조금 줄이기 */
+  opacity: 0.9;
 }
 
 </style>
