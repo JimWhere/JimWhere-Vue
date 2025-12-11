@@ -83,14 +83,8 @@ export const useAuthStore = defineStore('auth', () => {
 
        user.value = {
          ...user.value,
-         userCode: data.userCode,
-         userId: data.userId,
-         userPhoneNumber: data.userPhonNumber,
-         userBusinessNumber: data.userBusinessNumber,
          pName: data.pname,
-         startDt: data.startDt,
          role: data.role,
-         status: data.status,
        };
 
        localStorage.setItem("user", JSON.stringify(user.value));
@@ -119,6 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
             // accessToken 적용
             setAccessToken(data.accessToken);
             setUserFromToken(data.accessToken);
+
 
 
             await fetchUserMe();

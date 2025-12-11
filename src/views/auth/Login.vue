@@ -2,7 +2,7 @@
   <div class="auth-container">
     <h2 class="title">로그인</h2>
 
-    <div class="auth-box">
+    <div class="auth-box" @keyup.enter="login">
       <input
           v-model="id"
           placeholder="아이디를 입력해주세요"
