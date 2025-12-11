@@ -1,11 +1,15 @@
 <script setup>
 import Layout from '@/components/shared/layout/Layout.vue'
 import Header from '@/components/shared/header/Header.vue'
+import {useRoute} from "vue-router";
+
+const route = useRoute()
+
 </script>
 
 <template>
   <Layout>
-    <template #header>
+    <template #header v-if="!route.meta.hideHeader">
       <Header @toggle-menu="onToggleMenu" />
     </template>
 
