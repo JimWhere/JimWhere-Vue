@@ -79,18 +79,19 @@ const goDetail = (roomId) => {
 .home-wrapper {
   width: 100%;
   min-height: 100vh;
-  padding: 24px 16px;
   background-color: #ffffff; /* 전체 배경 흰색 */
-
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 15px;
 
 }
 
 /* 가로 스크롤 슬라이드 영역 */
 .room-list {
+  width: 100%;
   display: flex;
+  justify-content: space-around;
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 8px;
@@ -99,7 +100,6 @@ const goDetail = (roomId) => {
 
 /* 카드 하나 */
 .room-card {
-  flex: 0 0 480px; /* 한 화면에 딱 하나 or 두 개 보이게 조절 */
   background-color: #e0f3ff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
