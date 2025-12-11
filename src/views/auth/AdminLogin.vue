@@ -2,7 +2,7 @@
   <div class="auth-container">
     <h2 class="title">관리자 로그인</h2>
 
-    <div class="auth-box">
+    <div class="auth-box" @keyup.enter="login">
       <input
           v-model="id"
           placeholder="아이디를 입력해주세요"
@@ -24,23 +24,41 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import { useAuthStore } from "@/stores/authStore"
 
 const id = ref("")
 const password = ref("")
 const router = useRouter()
+const authStore = useAuthStore()
 
-const login = () => {
+const login = async () => {
   if (!id.value || !password.value) {
     alert("아이디와 비밀번호를 모두 입력해주세요.")
     return
   }
 
-  alert(`로그인 시도됨\n아이디: ${id.value}\n비밀번호: ${password.value}`)
-}
+  // 공통 로그인 엔드포인트 호출
+  const res = await authStore.login({
+    userEmail: id.value,
+    password: password.value,
+  })
 
+  console.log("로그인 응답", res)
+  if (!res.success) {
+    alert(res.message || "로그인 실패")
+    return
+  }
 
-const goRegister = () => {
-  router.push("/register")
+  // 여기서 관리자 여부 필터링
+  if (!authStore.user || authStore.user.role !== "ADMIN") {
+    alert("관리자만 로그인할 수 있습니다.")
+    authStore.logout?.()
+    return
+  }
+
+  // ADMIN 인증 성공
+  alert("관리자 로그인 성공!")
+  router.push("/admin")
 }
 </script>
 
