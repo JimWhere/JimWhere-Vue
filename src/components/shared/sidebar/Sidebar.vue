@@ -6,7 +6,7 @@
         <div class="user-info">
           <div class="label">유저ID</div>
           <div class="id">
-            {{ auth.isLoggedIn ? auth.user.pName + ' (' + auth.user.userId + ')' : '게스트' }}
+            {{ auth.isLoggedIn ? auth.user.pName + ' (' + auth.user.username + ')' : '게스트' }}
           </div>
         </div>
         <button class="close-btn" @click="ui.closeSidebar">&times;</button>
