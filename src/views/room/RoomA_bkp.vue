@@ -1,7 +1,11 @@
 <template>
     <main class="page">
       <section class="room-card">
-        <h2 class="room-title">{{ selectedRoom }} 방 배치</h2>
+        <h2 class="room-title">{{ selectedRoom }} 방 내부 구조</h2>
+        <div class="room-select">
+          <label>방 이름</label>
+          <AppDropdown v-model="selectedRoom" :options="roomOptions" />
+        </div>
         <div class="room-layout">
 
           <div class="room-inner" :style="roomGridStyle">
@@ -24,10 +28,6 @@
 
 
       <section class="booking-card">
-        <div class="room-select">
-          <label>방 이름</label>
-          <AppDropdown v-model="selectedRoom" :options="roomOptions" />
-        </div>
         <div class="date-inputs">
           <div class="date-field">
             <label>시작일</label>
@@ -270,67 +270,66 @@ const goToReservation=()=>{
 </script>
 
 <style scoped>
-@import "@/assets/shared/styles/theme.css";
-@import "@/assets/shared/styles/font.css";
 
 .page {
   padding-left:5%;
   display: flex;
   flex-direction: row;
-  font-family: var(--app-font);
-  font-weight: var(--app-font-weight-regular);
   /* align-items: center; */
 }
 
 .room-card {
   width: 100%;
   height: 100%;
-  background: var(--color-surface, #ffffff);
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 5%;
   margin-right: 10%;
 }
 .booking-card {
-  background: var(--color-surface, #ffffff);
+
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 24px;
 }
 
 .room-title {
+  /* text-align: center; */
   margin-bottom: 16px;
   font-size: 18px;
-  font-weight: var(--app-font-weight-semibold);
+  font-weight: 700;
 }
+
+.room-select{ margin:12px 0 8px }
 
 .room-layout {
   display: flex;
   justify-content: center;
-  /* margin-bottom: 60px; */
 }
 
 .room-inner {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 420px;
   border-radius: 8px;
-  border: 3px solid var(--color-border, #000000);
+  border: 3px solid #000000;
   padding: 24px 24px 60px;
-  background: var(--color-bg-muted, #f9fbff);
+  background: #f9fbff;
   box-sizing: border-box;
 
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
   grid-template-rows: repeat(var(--rows, 4), 1fr);
-  gap: 20px;
+  gap: 8px;
   align-content: stretch; /* fill the available height so rows are equal */
   align-items: stretch;  /* ensure children stretch to fill rows */
   justify-items: stretch;
 }
 
 .bed {
-  background: var(--color-primary-200, #c4cffc);
+  background: #c4cffc;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -340,10 +339,11 @@ const goToReservation=()=>{
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  color: var(--color-on-primary, inherit);
 }
 
+
 .bed-after-aisle {
+  /* removed extra margin so all beds remain uniform */
   margin-left: 0;
 }
 
@@ -353,17 +353,19 @@ const goToReservation=()=>{
   transform: translateX(-50%);
   bottom: 10px;
   padding: 6px 18px;
-  border: 2px solid var(--color-border, #000);
+  border: 2px solid #000;
   border-radius: 4px;
-  background: var(--color-surface, #ffffff);
+  background: #ffffff;
   font-size: 14px;
-  font-weight: var(--app-font-weight-semibold);
+  font-weight: 600;
 }
+
 
 .date-inputs {
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  margin-top: 45px;
   margin-bottom: 16px;
 }
 
@@ -375,28 +377,43 @@ const goToReservation=()=>{
   font-size: 14px;
 }
 
-.date-field label { font-weight: var(--app-font-weight-semibold); }
+.date-field label {
+  font-weight: 600;
+}
 
 .date-field input[type='date'] {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid var(--color-border-muted, #ccd3e0);
+  border: 1px solid #ccd3e0;
   font-size: 14px;
 }
+
 
 .calendar {
   margin-bottom: 20px;
   border-radius: 12px;
-  border: 1px solid var(--color-border-muted, #dde4f0);
-  background: var(--color-surface, #fdfdff);
+  border: 1px solid #dde4f0;
+  background: #fdfdff;
   padding: 16px;
 }
 
-.calendar-header { text-align: center; font-weight: var(--app-font-weight-semibold); margin-bottom: 12px }
+.calendar-header {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
 
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
 
-.calendar-day-name { text-align: center; font-size: 12px; font-weight: var(--app-font-weight-semibold) }
+.calendar-day-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
 
 .calendar-cell {
   height: 48px;
@@ -408,43 +425,66 @@ const goToReservation=()=>{
   cursor: pointer;
 }
 
-.calendar-cell.is-empty { background: transparent; cursor: default }
-.calendar-cell.is-in-range { background: var(--color-primary-100, #d4e5ff) }
-.calendar-cell.is-start, .calendar-cell.is-end { background: var(--color-primary, #78b3ff); color: var(--color-on-primary, #ffffff); font-weight: var(--app-font-weight-semibold) }
-.calendar-cell.is-today { border: 1px solid var(--color-primary-500, #4b7bec); box-shadow: 0 0 0 2px rgba(75, 123, 236, 0.2) }
+.calendar-cell.is-empty {
+  background: transparent;
+  cursor: default;
+}
 
-.price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px }
-.price-row .price { font-size: 18px }
+
+.calendar-cell.is-in-range {
+  background: #d4e5ff;
+}
+
+.calendar-cell.is-start,
+.calendar-cell.is-end {
+  background: #78b3ff;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.calendar-cell.is-today {
+  border: 1px solid #4b7bec;
+  box-shadow: 0 0 0 2px rgba(75, 123, 236, 0.2);
+}
+
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.price-row .price {
+  font-size: 18px;
+}
 
 .reserve-button {
   width: 100%;
   padding: 12px 16px;
   border-radius: 12px;
   border: none;
-  font-weight: var(--app-font-weight-semibold);
+  font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  background: var(--color-primary, #78b3ff);
-  color: var(--color-on-primary, #ffffff);
+  background: #78b3ff;
+  color: #ffffff;
   transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
-.reserve-button:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transform: translateY(-1px) }
 
-.room-select{ margin:12px 0 8px }
+.reserve-button:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
 
-/* Modal 3D visualization kept as-is but theme-aware colors */
-.modal-grid{ display:flex; gap:18px; align-items:center; flex-wrap:wrap }
-.box-visual{ width:260px; height:180px; display:flex; align-items:center; justify-content:center; overflow:visible }
-.scene{ width:100%; height:100%; perspective:900px; display:flex; align-items:center; justify-content:center; overflow:visible }
-.cube{ position:relative; width:var(--box-w); height:var(--box-h); transform-style:preserve-3d; transform: rotateX(20deg) rotateY(-35deg); transition: transform .25s ease; transform-origin: center center; margin:0 }
-.face{ position:absolute; left:0; top:0; box-sizing:border-box; border:1px solid rgba(0,0,0,0.12); backface-visibility:hidden }
-.face.front{ width:var(--box-w); height:var(--box-h); background:linear-gradient(180deg,var(--color-accent,#c57c2a),#a45918); transform: translateZ(calc(var(--box-d) / 2)); left:0; top:0 }
-.face.right{ width:calc(var(--box-d)); height:var(--box-h); background:linear-gradient(180deg,#b5742a,#8f4f11); transform: rotateY(90deg) translateZ(calc(var(--box-w) / 2)); transform-origin: left center; left: calc(var(--box-w) - calc(var(--box-d) / 2)); top:0 }
-.face.top{ width:var(--box-w); height:calc(var(--box-d)); background:linear-gradient(180deg,#e6b77a,#c68b4d); transform: rotateX(90deg) translateZ(calc(var(--box-h) / 2)); transform-origin: top center; top: calc(-1 * (var(--box-d) / 2)); left:0 }
-.shadow{ position:absolute; left:50%; bottom:-10px; width:calc(var(--box-w) * 1.1); height:18px; transform:translateX(-50%); background:radial-gradient(ellipse at center, rgba(0,0,0,0.18), rgba(0,0,0,0.02)); filter:blur(6px); z-index:-1; pointer-events:none }
+.room-header{ display:flex; justify-content:flex-start; margin-bottom:12px }
 
-.bed-specs p{ margin:8px 0; font-size:14px }
 
-@media (max-width: 900px) { .page { flex-direction: column } }
+@media (max-width: 900px) {
+  .page {
+    flex-direction: column;
+  }
+}
 </style>
 

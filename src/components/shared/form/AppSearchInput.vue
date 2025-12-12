@@ -40,7 +40,7 @@ function onSearch(){ emit('search', internalValue.value) }
 .app-search{ display:inline-block; min-width:420px }
 
 /* make the input look like the pill design */
-.app-search >>> .el-input__inner{
+.app-search :deep(.el-input__inner){
   background: #fff !important;
   border-radius: 40px !important;
   border: none !important;
@@ -60,10 +60,10 @@ function onSearch(){ emit('search', internalValue.value) }
 
 /* suffix button style */
 /* .app-search >>> .el-input__suffix .search-btn{ padding:0; margin-right:6px; color:var(--color-primary-500) } */
-.app-search >>> .el-icon-search{ font-size:14px }
+.app-search :deep(.el-icon-search){ font-size:14px }
 
 /* inner input text styling */
-.app-search >>> .el-input__inner, .app-search >>> .el-input__inner *{ font-family: var(--app-font); }
+.app-search :deep(.el-input__inner), .app-search :deep(.el-input__inner) *{ font-family: var(--app-font); }
 
 /* responsive */
 @media (max-width:720px){ .app-search{ min-width:260px } .search-placeholder{ font-size:20px } }

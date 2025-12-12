@@ -39,6 +39,12 @@ import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
 import EntryHistoryDetail from "@/views/mypage/EntryHistoryDetail.vue";
 import AdminEntryDetail from "@/views/admin/AdminEntryDetail.vue";
 
+//room
+import RoomDetail from "@/views/room/RoomDetail.vue"
+import RoomA from "@/views/room/RoomA.vue"
+//import RoomB from "@/views/room/RoomB.vue"
+//import RoomC from "@/views/room/RoomC.vue"
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -50,6 +56,9 @@ const router = createRouter({
         },
 
         { path: "/", name: "Home", component: Home },
+        { path: "/room/:roomId", name: "RoomDetail", component: RoomA },
+        //{ path: "/room/:roomId", name: "RoomB", component: RoomB },
+        //{ path: "/room/:roomId", name: "RoomC", component: RoomC },
         { path: "/home", redirect: "/" },
         { path: "/notice",name:'Notice', component: Notice },
         { path: "/notice/detail",name:'NoticeDetail', component: NoticeDetail },
