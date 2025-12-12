@@ -1,42 +1,42 @@
 <template>
-  <div class="notice-detail">
-    <h2 class="notice-detail__title">문의 사항 </h2>
+  <div class="inquiry-detail">
+    <h2 class="inquiry-detail__title">문의 사항 상세</h2>
 
-    <el-card class="notice-detail__card" shadow="never">
+    <el-card class="inquiry-detail__card" shadow="never">
 
-      <div class="notice-detail__section">
-        <label class="notice-detail__label">문의 사항 제목</label>
+      <div class="inquiry-detail__section">
+        <label class="inquiry-detail__label">문의 사항 제목</label>
         <el-input
             v-model="title"
             :disabled="!editMode"
-            class="notice-detail__input"
+            class="inquiry-detail__input"
         />
       </div>
 
 
-      <div class="notice-detail__section">
-        <label class="notice-detail__label">문의사항 내용</label>
+      <div class="inquiry-detail__section">
+        <label class="inquiry-detail__label">문의사항 내용</label>
         <el-input
             v-model="content"
             :disabled="!editMode"
             type="textarea"
             :rows="10"
-            class="notice-detail__textarea"
+            class="inquiry-detail__textarea"
         />
       </div>
 
-      <div class="notice-detail__section">
-        <label class="notice-detail__label">문의사항 답변</label>
+      <div class="inquiry-detail__section">
+        <label class="inquiry-detail__label">문의사항 답변</label>
         <el-input
             v-model="answer"
             :disabled="!editMode"
             type="textarea"
             :rows="10"
-            class="notice-detail__textarea"
+            class="inquiry-detail__textarea"
         />
       </div>
 
-      <div class="notice-detail__btn-wrap">
+      <div class="inquiry-detail__btn-wrap">
 
         <el-button @click="goBack">목록으로</el-button>
       </div>
@@ -88,29 +88,32 @@ onMounted(fetchDetail);
 
 
 <style scoped>
-.notice-detail {
-  background: #fff;
-  padding: 24px 32px;
-  border-radius: 12px;
+.inquiry-detail {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 30px 40px;
 }
 
-.notice-detail__title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #5a9dfb;
+.inquiry-detail__title {
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
+  color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
-.notice-detail__card {
+.inquiry-detail__card {
   padding: 24px;
   border-radius: 16px;
 }
 
-.notice-detail__section {
+.inquiry-detail__section {
   margin-bottom: 20px;
 }
 
-.notice-detail__label {
+.inquiry-detail__label {
   font-size: 14px;
   font-weight: 600;
   color: #333;
@@ -118,13 +121,13 @@ onMounted(fetchDetail);
   margin-bottom: 6px;
 }
 
-.notice-detail__input,
-.notice-detail__textarea {
+.inquiry-detail__input,
+.inquiry-detail__textarea {
   background: #f4f7fc;
   border-radius: 8px;
 }
 
-.notice-detail__btn-wrap {
+.inquiry-detail__btn-wrap {
   display: flex;
   justify-content: flex-end;
   gap: 8px;

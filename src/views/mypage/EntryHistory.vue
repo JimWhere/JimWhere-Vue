@@ -1,15 +1,13 @@
 <!-- AccessHistory.vue -->
 <template>
   <div class="access-history">
-    <!-- 제목 영역 -->
     <div class="access-history__header">
       <h2>출입내역</h2>
       <span class="access-history__desc">
-        날짜별 입출 로그 내역
+        출입 로그 내역
       </span>
     </div>
 
-    <!-- 테이블 -->
     <el-card class="access-history__card" shadow="never">
       <el-table
           :data="rows"
@@ -20,7 +18,7 @@
         <el-table-column
             prop="accessHistoryCode"
             label="출입번호"
-            width="120"
+            width="100"
             align="center"
         />
 
@@ -36,7 +34,7 @@
 
         <el-table-column
             label="목적"
-            width="120"
+            width="100"
             align="center"
         >
           <template #default="{ row }">
@@ -53,7 +51,7 @@
         <el-table-column
             prop="accessedAt"
             label="출입 시간"
-            width="100"
+            min-width="100"
             align="center"
         >
         </el-table-column>
@@ -69,7 +67,7 @@
         </el-table-column>
         <el-table-column
             label="상세보기"
-            width="120"
+            width="100"
             align="center"
         >
 
@@ -82,8 +80,6 @@
       </el-table>
 
 
-
-      <!-- 페이지네이션 -->
       <div class="access-history__pagination">
         <el-pagination
             background
@@ -111,16 +107,6 @@ const page = ref(1)
 const pageSize = ref(5)     // 한 페이지 5건
 const total = ref(0)
 
-/**
- * 출입내역 조회
- * 백엔드 응답 예시:
- * {
- *   content: [
- *     { id, entranceAt, visitType, visitorType, roomName }
- *   ],
- *   totalElements: number
- * }
- */
 const fetchAccessHistory = async () => {
   loading.value = true
   try {
@@ -202,15 +188,11 @@ onMounted(() => {
   border-radius: 16px;
   overflow: hidden;
 }
-
-.access-history__table-header {
-  background-color: #f7f9fc !important;
-  font-weight: 600;
-}
-
 .access-history__pagination {
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
 }
 </style>
+
+

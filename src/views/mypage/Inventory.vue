@@ -1,111 +1,64 @@
-<!-- StockInOutHistory.vue -->
 <template>
-  <div class="stock-io">
-    <div class="stock-io__header">
-      <h2>입출고내역</h2>
-      <span class="stock-io__desc">기간별 입출고 이력</span>
+  <div class="inventory">
+
+    <div class="inventory__header">
+      <h2>재고 현황 관리</h2>
+      <span class="inventory__desc">고객님이 대여한 방의 재고 현황을 표시합니다.</span>
+      <div class="available-box-wrapper">
+        <AppLabel v-model:availableBoxCount="availableBoxCount">
+          이용 가능 박스 수 : {{ availableBoxCount }}
+        </AppLabel>
+      </div>
     </div>
 
-    <el-card class="stock-io__card" shadow="never">
+
+    <el-card class="inventory__card" shadow="never">
       <el-table
           :data="rows"
           v-loading="loading"
           border
-          header-cell-class-name="stock-io__table-header"
+          header-cell-class-name="inventory__table-header"
       >
-        <!-- 입출고 번호 -->
-        <el-table-column
-            prop="inOutHistoryCode"
-            label="입출고 번호"
-            width="120"
-            align="center"
-        />
 
-        <!-- 입출고 타입 IN → 입고 / OUT → 출고 -->
-        <el-table-column label="유형" width="120" align="center">
-          <template #default="{ row }">
-            {{ row.inOutType === 'IN' ? '입고' : '출고' }}
-          </template>
-        </el-table-column>
 
-        <!-- 물품 이름 -->
         <el-table-column
-            prop="inOutName"
-            label="물품 이름"
-            width="160"
-            align="center"
-        />
-
-        <!-- 수량 -->
-        <el-table-column
-            prop="inOutQuantity"
-            label="수량"
-            width="100"
-            align="center"
-        />
-        <el-table-column
-            label="상세보기"
-            width="120"
+            prop="boxName"
+            label="박스 이름"
+            width="140"
             align="center"
         >
-
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="goDetail(row)">
-              수정하기
-            </el-button>
-          </template>
         </el-table-column>
+
+        <el-table-column
+            prop="boxContent"
+            label="물품 명"
+            min-width="240"
+            align="center"
+        />
+
+
+        <el-table-column
+            prop="boxCurrentCount"
+            label="물품 수"
+            width="160"
+            align="center"
+        >
+        </el-table-column>
+
       </el-table>
 
-      <el-dialog
-          v-model="editDialogVisible"
-          title="입출고 내역 수정"
-          width="400px"
-      >
-        <div class="edit-form">
-          <el-form label-width="90px">
-
-            <el-form-item label="유형">
-              <el-select v-model="editRow.inOutType" placeholder="선택">
-                <el-option label="입고" value="IN" />
-                <el-option label="출고" value="OUT" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="물품명">
-              <el-input v-model="editRow.inOutName" placeholder="물품명을 입력하세요" />
-            </el-form-item>
-
-            <el-form-item label="수량">
-              <el-input-number v-model="editRow.inOutQuantity" :min="1" />
-            </el-form-item>
-
-          </el-form>
-        </div>
-
-        <template #footer>
-          <el-button @click="editDialogVisible = false">취소</el-button>
-          <el-button type="primary" @click="confirmEdit">확인</el-button>
-        </template>
-      </el-dialog>
-
-      <div class="stock-io__pagination">
-        <el-pagination
-            background
-            layout="prev, pager, next"
-            :current-page="page"
-            :page-size="pageSize"
-            :total="total"
-            @current-change="handleCurrentChange"
-        />
-      </div>
     </el-card>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import {updateInOutHistory, userInoutHistory} from '@/api/myPage.js'
+import { useRouter } from 'vue-router'
+
+import {userAvailableBoxCount, userBoxList} from "@/api/myPage.js";
+import AppLabel from "@/components/shared/basic/AppLabel.vue";
+
+const router = useRouter()
 
 const loading = ref(false)
 const rows = ref([])
@@ -113,62 +66,41 @@ const rows = ref([])
 const page = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
+const availableBoxCount =ref(0)
 
-const fetchStockInOut = async () => {
+
+const fetchNoticeList = async () => {
   loading.value = true
   try {
-    const res = await userInoutHistory({
-      page: page.value,
-      size: pageSize.value
-    })
-
-    console.log("INOUT RAW:", res.data)
+    const res = await userBoxList()
+    const countRes= await userAvailableBoxCount();
+    availableBoxCount.value=countRes.data.data;
 
     const data = res.data.data
-    rows.value = data.content        // 리스트
-    total.value = data.totalElements // 페이지 total
+    rows.value = data
+    total.value = data.length
 
-  } catch (err) {
-    console.error('입출고 내역 조회 실패', err)
+  } catch (e) {
+    console.error("공지사항 조회 실패", e)
+    console.log(res.data)
+    console.log("Server response:", err.response?.data);
   } finally {
     loading.value = false
   }
 }
 
-const editDialogVisible = ref(false)
-const editRow = ref({
-  inOutHistoryCode: null,
-  inOutType: 'IN',
-  inOutName: '',
-  inOutQuantity: 1,
-})
 
-const goDetail = (row) => {
-  editRow.value = { ...row } // 선택한 row 복사
-  editDialogVisible.value = true
-}
-
-const confirmEdit = async () => {
-
-  const { inOutHistoryCode, ...payload } = editRow.value
-  console.log("수정된 데이터:", payload)
-  console.log("수정된:", inOutHistoryCode)
-  await updateInOutHistory(inOutHistoryCode,payload)
-
-  editDialogVisible.value = false
-}
-
-const handleCurrentChange = (newPage) => {
+const handlePageChange = (newPage) => {
   page.value = newPage
 }
 
-watch(page, fetchStockInOut)
+watch(page, fetchNoticeList)
 
-onMounted(fetchStockInOut)
+onMounted(fetchNoticeList)
 </script>
 
 <style scoped>
-.stock-io {
+.inventory {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -178,7 +110,7 @@ onMounted(fetchStockInOut)
   box-sizing: border-box;
 }
 
-.stock-io__header {
+.inventory__header {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
@@ -186,19 +118,29 @@ onMounted(fetchStockInOut)
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
-.stock-io__header h2 {
+.inventory__header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
 }
 
-.stock-io__desc {
+.inventory__desc {
   margin-left: 12px;
   font-size: 12px;
   color: #999;
 }
+.available-box-wrapper {
+  margin-left: auto;
+}
+.inventory__header :deep(.app-label__icon) {
+  display: none;
+}
+.inventory__header :deep(.app-label) {
+  padding: 6px 12px;   /* 크기 줄이기 */
+  font-size: 14px;
+}
 
-.stock-io__card {
+.inventory__card {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -206,14 +148,9 @@ onMounted(fetchStockInOut)
   overflow: hidden;
 }
 
-.stock-io__table-header {
-  background-color: #f7f9fc !important;
-  font-weight: 600;
-}
-
-.stock-io__pagination {
+/*.inventory__pagination {
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
-}
+}*/
 </style>

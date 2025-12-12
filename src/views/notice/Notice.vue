@@ -2,7 +2,7 @@
   <div class="notice">
 
     <div class="notice__header">
-      <h2>공지사항 관리</h2>
+      <h2>공지사항</h2>
     </div>
 
 
@@ -138,10 +138,12 @@ onMounted(fetchNoticeList)
 }
 
 .notice__header {
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
+  margin-bottom: 16px;
   color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+
 }
 
 .notice__header h2 {
@@ -158,10 +160,6 @@ onMounted(fetchNoticeList)
   overflow: hidden;
 }
 
-.notice__table-header {
-  background-color: #f7f9fc !important;
-  font-weight: 600;
-}
 
 .notice__pagination {
   display: flex;
