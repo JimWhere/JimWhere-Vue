@@ -4,7 +4,7 @@
 
     <el-card class="notice-detail__card" shadow="never">
 
-      <!-- 공지사항 제목 -->
+
       <div class="notice-detail__section">
         <label class="notice-detail__label">공지사항 제목</label>
         <el-input
@@ -14,7 +14,6 @@
         />
       </div>
 
-      <!-- 공지사항 내용 -->
       <div class="notice-detail__section">
         <label class="notice-detail__label">공지사항 내용</label>
         <el-input
@@ -26,16 +25,16 @@
         />
       </div>
 
-      <!-- 버튼 영역 -->
+
       <div class="notice-detail__btn-wrap">
 
-        <!-- 수정모드 아닐 때 -->
+
         <template v-if="!editMode">
           <el-button type="danger" @click="deleteNotice">삭제</el-button>
           <el-button type="primary" @click="editMode = true">수정</el-button>
         </template>
 
-        <!-- 수정모드일 때 -->
+
         <template v-else>
           <el-button @click="cancelEdit">취소</el-button>
           <el-button type="primary" @click="saveNotice">저장</el-button>
@@ -95,12 +94,13 @@ const saveNotice = async () => {
       noticeContent: content.value,
     });
 
-    // 저장 후 원본 갱신
     originalTitle.value = title.value;
     originalContent.value = content.value;
 
     editMode.value = false;
     alert("수정 성공!");
+
+    await router.push({ name: "AdminNotice" });
 
   } catch (err) {
     console.error("수정 실패", err);
@@ -114,7 +114,7 @@ const deleteNotice = async () => {
   try {
    await adminNoticeDelete(route.query.noticeCode);
     alert("삭제 완료!");
-    router.push({ name: "AdminNotice" });
+    await router.push({ name: "AdminNotice" });
 
   } catch (err) {
     console.error("삭제 실패", err);

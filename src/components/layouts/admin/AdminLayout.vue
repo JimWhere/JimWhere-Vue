@@ -18,6 +18,7 @@
           <router-link to="/admin/home" class="menu">홈</router-link>
           <router-link to="/admin/users" class="menu">회원 관리</router-link>
           <router-link to="/admin/entry" class="menu">출입 관리</router-link>
+          <router-link to="/admin/inout" class="menu">입출고 관리</router-link>
           <router-link to="/admin/inventory" class="menu">재고 관리</router-link>
           <router-link to="/admin/reservations" class="menu">예약 관리</router-link>
           <router-link to="/admin/inquiry" class="menu">문의 관리</router-link>

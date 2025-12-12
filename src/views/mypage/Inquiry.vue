@@ -5,13 +5,13 @@
     <div class="inquiry__header">
       <h2>문의내역</h2>
       <span class="inquiry__desc">고객님의 문의 기록을 확인할 수 있습니다.</span>
+
+      <div class="inquiry__actions">
+        <el-button type="primary" @click="goWrite">문의하기</el-button>
+      </div>
     </div>
 
-    <div class="inquiry__actions">
-      <el-button type="primary" @click="goWrite">문의하기</el-button>
-    </div>
 
-    <!-- 카드 영역 -->
     <el-card class="inquiry__card" shadow="never">
       <el-table
           :data="rows"
@@ -21,7 +21,7 @@
           class="inquiry__table"
       >
 
-        <!-- 문의 번호 -->
+
         <el-table-column
             prop="inquiryCode"
             label="문의 번호"
@@ -29,7 +29,6 @@
             align="center"
         />
 
-        <!-- 제목 -->
         <el-table-column
             prop="inquiryTitle"
             label="문의 제목"
@@ -37,7 +36,6 @@
             align="center"
         />
 
-        <!-- 작성일 -->
         <el-table-column
             prop="createdAt"
             label="작성일"
@@ -49,7 +47,7 @@
           </template>
         </el-table-column>
 
-        <!-- 답변 상태 -->
+
         <el-table-column
             prop="answer"
             label="답변 상태"
@@ -61,7 +59,6 @@
           </template>
         </el-table-column>
 
-        <!-- 상세 -->
         <el-table-column
             label="자세히"
             width="120"
@@ -76,7 +73,6 @@
 
       </el-table>
 
-      <!-- 페이지네이션 -->
       <div class="inquiry__pagination">
         <el-pagination
             background
@@ -148,7 +144,9 @@ onMounted(fetchInquiryList)
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 30px 40px;
+  padding: 24px 32px;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
 
@@ -172,27 +170,20 @@ onMounted(fetchInquiryList)
   color: #999;
 }
 
-/* 상단 버튼 */
 .inquiry__actions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-left: auto;
 }
 
-/* 카드 전체 박스 */
 .inquiry__card {
   flex: 1;
-  border-radius: 14px;
-  padding: 20px;
-  background: #fafbfd;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-/* 테이블 헤더 */
-.inquiry__table-header {
-  background-color: #f1f4f9 !important;
-  font-weight: 600;
-  color: #444;
-}
 
 .inquiry__pagination {
   display: flex;
