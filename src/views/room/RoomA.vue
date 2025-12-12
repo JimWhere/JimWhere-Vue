@@ -7,15 +7,25 @@
           <div class="room-inner" :style="roomGridStyle">
 
             <div
-                class="bed"
-                v-for="bed in beds"
-                :key="bed.label"
-                :class="{ 'bed-after-aisle': bed.isAfterAisle }"
-                @click="openBedSpec(bed.label)"
+              class="bed"
+              v-for="bed in beds"
+              :key="bed.label"
+              :class="{
+                'bed-after-aisle': bed.isAfterAisle,
+                occupied: (boxMap[bed.label] && (Number(boxMap[bed.label].boxCurrentCount) || 0) > 0),
+                empty: !boxMap[bed.label] || (Number(boxMap[bed.label].boxCurrentCount) || 0) === 0
+              }"
             >
-              {{ bed.label }}
-            </div>
+              <div class="bed-label">{{ bed.label }}</div>
 
+              <template v-if="hasVisibleBox(bed.label)">
+                <div class="box-content">{{ getBox(bed.label).boxContent || '-' }}</div>
+                <div class="box-count">{{ getBox(bed.label).boxCurrentCount ?? 0 }} 개</div>
+              </template>
+              <template v-else>
+                <div class="box-empty">보관 가능</div>
+              </template>
+            </div>
 
             <div class="entrance">입구</div>
           </div>
@@ -75,23 +85,19 @@
           예약하기
         </button>
       </section>
-      <!-- Bed spec modal -->
-      <AppModal v-model:visible="visibleBed" :title="`${selectedBed} 박스 정보`" @confirm="onModalConfirm">
-        <div class="bed-specs">
-          <p><strong>박스 라벨:</strong> {{ selectedBed }}</p>
-          <p><strong>가로 (Width):</strong> 33 cm</p>
-          <p><strong>세로 (Depth):</strong> 68 cm</p>
-          <p><strong>높이 (Height):</strong> 25 cm</p>
-        </div>
-      </AppModal>
     </main>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router';
+import { listBoxesByRoom } from '@/api/box';
+import { watch } from 'vue'
 import router from "@/router/index.js";
-import AppModal from '@/components/shared/feedback/AppModal.vue';
 import AppDropdown from '@/components/shared/form/AppDropdown.vue';
+
+const route = useRoute();
+const boxes = ref([]);
 
 // dropdown options for selecting a specific room
 const roomOptions = [
@@ -104,7 +110,6 @@ const roomOptions = [
 const selectedRoom = ref(roomOptions[0].value)
 
 const nightlyPrice = 10000
-const roomType = 'A'
 const boxType = 'a'
 
 const columnCount = ref(4)
@@ -135,7 +140,6 @@ const beds = computed(() => {
   return result
 })
 
-
 const today = new Date()
 const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
 
@@ -148,16 +152,6 @@ const toInputValue = (d) => {
 
 const startDate = ref(toInputValue(today))
 const endDate = ref(toInputValue(tomorrow))
-
-// modal state
-const visibleBed = ref(false)
-const selectedBed = ref('')
-
-function openBedSpec(label){ selectedBed.value = label; visibleBed.value = true }
-function onModalConfirm(){
-  // currently just close the modal on confirm; expand behavior if needed
-  visibleBed.value = false
-}
 
 const nights = computed(() => {
   if (!startDate.value || !endDate.value) return 0
@@ -262,10 +256,132 @@ const onClickDate = (cell) => {
     endDate.value = toInputValue(clicked)
   }
 }
-const goToReservation=()=>{
-  // navigate to the RoomDetail route for the selected room
-  router.push({ name: 'RoomDetail', params: { roomId: selectedRoom.value } })
+
+// 예약하기 -> 리다이렉트 
+const goToReservation = () => {
+  // selectedRoom 정규화 (v-model이 object일 경우 대비)
+  const sel = selectedRoom.value
+  const roomStr = (typeof sel === 'string') ? sel : (sel?.value ?? sel?.label ?? 'A1')
+
+  // roomCode 매핑 (예: A1..A5 -> 1..5, B1..B5 -> 6..10, C1..C5 -> 11..15)
+  function mapRoomToCodeLocal(roomName) {
+    if (!roomName) return 1
+    const prefix = roomName[0].toUpperCase()
+    const num = Number(roomName.slice(1)) || 1
+    if (prefix === 'A') return num
+    if (prefix === 'B') return 5 + num
+    if (prefix === 'C') return 10 + num
+    return num
+  }
+
+  // roomTypeCode 매핑 (백엔드 규칙에 맞게 수정하세요)
+  function mapRoomTypeToCode(roomNameOrType) {
+    // 예: A/B/C -> 1/2/3  (필요하면 'S','M','L' 규칙으로 변경)
+    const ch = (typeof roomNameOrType === 'string' ? roomNameOrType[0] : String(roomNameOrType)).toUpperCase()
+    if (ch === 'A') return 1
+    if (ch === 'B') return 2
+    if (ch === 'C') return 3
+    return 1
+  }
+
+  const roomCode = mapRoomToCodeLocal(roomStr)
+  const roomTypeCode = mapRoomTypeToCode(roomStr) // 숫자
+  const roomTypeName = roomStr[0].toUpperCase() // 예: 'A' 또는 필요하면 다른 값 사용
+
+  // startDate/endDate에 시간 붙이기 (예: '2025-12-20' -> '2025-12-20T12:00:00')
+  // 원하는 시간이 있으면 변경하세요.
+  const timeSuffix = 'T12:00:00'
+  const startAtISO = startDate.value ? `${startDate.value}${timeSuffix}` : ''
+  const endAtISO = endDate.value ? `${endDate.value}${timeSuffix}` : ''
+
+  const amount = totalPrice.value
+
+  // 디버그 로그 확인
+  console.log({ roomStr, roomCode, roomTypeCode, roomTypeName, startAtISO, endAtISO, amount })
+
+  router.push({
+    path: '/payments/request',
+    query: {
+      roomCode: String(roomCode),
+      roomTypeCode: String(roomTypeCode), // 숫자 형식이 필요하면 그대로
+      startAt: startAtISO,
+      endAt: endAtISO,
+      amount: String(amount),
+      roomTypeName, // 문자열
+    },
+  })
 }
+
+// Box 매핑에서 label에 대응하는 항목을 안전하게 반환
+function getBox(label) {
+  return boxMap.value[label] ?? boxMap.value[label.toLowerCase()] ?? boxMap.value[label.toUpperCase()] ?? null
+}
+
+// 화면에 박스 정보를 보여줘야 하는지 여부 판단
+function hasVisibleBox(label) {
+  const b = getBox(label)
+  if (!b) return false
+  const content = b.boxContent
+  const count = Number(b.boxCurrentCount ?? 0)
+  // 내용 문자열이 비어있거나 null/undefined 이고, 재고도 0이면 '비어있음'으로 간주
+  return (content !== null && content !== undefined && String(content).trim() !== '') || count > 0
+}
+
+const boxMap = computed(() => {
+  const map = {}
+  boxes.value.forEach(b => {
+    const raw = b.boxCode ?? b.boxLabel ?? b.box_id ?? b.label ?? b.boxName
+    if (!raw) return
+    const s = String(raw)
+
+    // map raw forms
+    map[s] = b
+    map[s.toLowerCase()] = b
+    map[s.toUpperCase()] = b
+
+    // numeric part (e.g., API returns '1' but bed label is 'a1')
+    const num = s.replace(/\D/g, '')
+    if (num) {
+      map[num] = b
+      map['a' + num] = b
+      map['A' + num] = b
+    }
+  })
+  return map
+})
+
+// selectedRoom -> roomCode 변환
+function mapRoomToCode(roomName) {
+  if (!roomName) return 1
+  const prefix = roomName[0].toUpperCase()
+  const num = Number(roomName.slice(1)) || 1
+  if (prefix === 'A') return num
+}
+
+// fetch 함수 
+async function fetchBoxesForRoom(roomName) {
+  const roomCode = mapRoomToCode(roomName)
+  try {
+    const apiRes = await listBoxesByRoom(roomCode)
+    const data = apiRes.data ?? apiRes
+
+    console.log('api response : ' + data);
+
+    boxes.value = Array.isArray(data) ? data : (data?.data ?? [])
+  } catch (e) {
+    console.error('박스 목록 조회 실패')
+    boxes.value = []
+  }
+}
+
+// 초기 호출과 watch 연결
+onMounted(() => {
+  fetchBoxesForRoom(selectedRoom.value)
+})
+
+watch(selectedRoom, (newVal) => {
+  fetchBoxesForRoom(newVal)
+})
 
 </script>
 
@@ -341,6 +457,9 @@ const goToReservation=()=>{
   height: 100%;
   box-sizing: border-box;
   color: var(--color-on-primary, inherit);
+  position:relative;
+  padding:8px;
+  flex-direction:column;
 }
 
 .bed-after-aisle {
@@ -432,18 +551,24 @@ const goToReservation=()=>{
 
 .room-select{ margin:12px 0 8px }
 
-/* Modal 3D visualization kept as-is but theme-aware colors */
-.modal-grid{ display:flex; gap:18px; align-items:center; flex-wrap:wrap }
-.box-visual{ width:260px; height:180px; display:flex; align-items:center; justify-content:center; overflow:visible }
-.scene{ width:100%; height:100%; perspective:900px; display:flex; align-items:center; justify-content:center; overflow:visible }
-.cube{ position:relative; width:var(--box-w); height:var(--box-h); transform-style:preserve-3d; transform: rotateX(20deg) rotateY(-35deg); transition: transform .25s ease; transform-origin: center center; margin:0 }
-.face{ position:absolute; left:0; top:0; box-sizing:border-box; border:1px solid rgba(0,0,0,0.12); backface-visibility:hidden }
-.face.front{ width:var(--box-w); height:var(--box-h); background:linear-gradient(180deg,var(--color-accent,#c57c2a),#a45918); transform: translateZ(calc(var(--box-d) / 2)); left:0; top:0 }
-.face.right{ width:calc(var(--box-d)); height:var(--box-h); background:linear-gradient(180deg,#b5742a,#8f4f11); transform: rotateY(90deg) translateZ(calc(var(--box-w) / 2)); transform-origin: left center; left: calc(var(--box-w) - calc(var(--box-d) / 2)); top:0 }
-.face.top{ width:var(--box-w); height:calc(var(--box-d)); background:linear-gradient(180deg,#e6b77a,#c68b4d); transform: rotateX(90deg) translateZ(calc(var(--box-h) / 2)); transform-origin: top center; top: calc(-1 * (var(--box-d) / 2)); left:0 }
-.shadow{ position:absolute; left:50%; bottom:-10px; width:calc(var(--box-w) * 1.1); height:18px; transform:translateX(-50%); background:radial-gradient(ellipse at center, rgba(0,0,0,0.18), rgba(0,0,0,0.02)); filter:blur(6px); z-index:-1; pointer-events:none }
-
 .bed-specs p{ margin:8px 0; font-size:14px }
+
+/* bed inner labels and status styles */
+.bed{ position:relative; padding:8px; display:flex; flex-direction:column; justify-content:center; align-items:center }
+.bed-label{ font-size:12px; font-weight:700; margin-bottom:6px }
+.box-content{ font-size:11px; margin-top:4px; opacity:.95 }
+.box-count{ font-size:13px; font-weight:700; margin-top:6px }
+.box-empty{ font-size:12px; color:var(--color-gray-500); }
+
+/* 상태에 따른 색상 */
+.bed.occupied{ background: linear-gradient(180deg, #ffdfe0 0%, #ffbdbf 100%); color:#5b1b1b }
+.bed.empty{ background: linear-gradient(180deg, var(--color-primary-200,#c4cffc) 0%, #a9c8ff 100%); color:#07213a }
+
+/* 낮은 재고(예: count <= 1) 강조 */
+.bed.low-stock{ box-shadow: 0 0 0 3px rgba(255,165,0,0.12); border: 1px solid rgba(255,165,0,0.18) }
+
+/* make inner text readable on small boxes */
+.bed .bed-label, .bed .box-content, .bed .box-count{ text-align:center; word-break:break-word }
 
 @media (max-width: 900px) { .page { flex-direction: column } }
 </style>

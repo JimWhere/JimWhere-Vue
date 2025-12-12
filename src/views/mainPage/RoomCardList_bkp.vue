@@ -17,21 +17,18 @@
 
         <!-- 텍스트 영역 -->
         <div class="room-content">
-          <table class="info-table-small">
-            <tbody>
-              <tr>
-                <th>방 타입</th>
-                <td>{{ room.title }}</td>
-              </tr>
-              <tr>
-                <th>박스 규격</th>
-                <td>{{ room.dimension }}</td>
-              </tr>
-            </tbody>
-          </table>
-
+          <h3 class="room-title">{{ room.title }}</h3>
           <p class="room-desc">
             {{ room.description }}
+          </p>
+          <p class="box-dimension-width">
+            가로 : {{ room.dimension.width }} cm
+          </p>
+          <p class="box-dimension-length">
+            세로 : {{ room.dimension.length }} cm
+          </p>
+          <p class="box-dimension-height">
+            높이 : {{ room.dimension.height }} cm
           </p>
         </div>
 
@@ -67,21 +64,33 @@ const rooms = [
     id: 'A',
     title: 'Room A',
     description: '최소 단위의 짐 대여공간 입니다',
-    dimension: "50 X 50 X 50 (단위 : cm)",
+    dimension: {
+      width: 50, 
+      length: 50, 
+      height: 50
+    },
     imageUrl: roomAImg, // 실제 이미지 경로로 교체
   },
   {
     id: 'B',
     title: 'Room B',
     description: '중간 단위의 짐 대여공간 입니다',
-    dimension: "70 X 70 X 70 (단위 : cm)",
+    dimension: {
+      width: 70, 
+      length: 70, 
+      height: 70
+    },
     imageUrl: roomBImg,
   },
   {
     id: 'C',
     title: 'Room C',
     description: '최대 단위의 짐 대여공간 입니다',
-    dimension: "50 X 50 X 50 (단위 : cm)",
+    dimension: {
+      width: 100, 
+      length: 100, 
+      height: 100
+    },
     imageUrl: roomCImg,
   },
 ]
@@ -197,26 +206,5 @@ const goDetail = async (roomId) => {
 .room-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-}
-
-/* new small table styles */
-.info-table-small {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-.info-table-small th,
-.info-table-small td {
-  border: 1px solid #e5eaf5;
-  padding: 8px 10px;
-  font-size: 13px;
-}
-.info-table-small th {
-  width: 96px;
-  text-align: left;
-  background: #f7fbff;
-}
-.info-table-small td {
-  text-align: left;
 }
 </style>
