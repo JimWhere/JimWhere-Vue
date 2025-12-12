@@ -67,6 +67,7 @@ const router = createRouter({
         {
             path: "/admin",
             component: AdminLayout,
+            meta: { requiresAdmin: true },
             children: [
                 { path: "", redirect: "/admin/home" },
                 { path: "home", component: AdminHome },
