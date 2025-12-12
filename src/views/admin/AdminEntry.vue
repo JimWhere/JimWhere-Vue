@@ -4,7 +4,7 @@
     <div class="access-history__header">
       <h2>출입내역</h2>
       <span class="access-history__desc">
-        날짜별 입출 로그 내역
+        유저 전체의 출입 로그 내역
       </span>
     </div>
 
@@ -18,16 +18,10 @@
         <el-table-column
             prop="accessHistoryCode"
             label="출입번호"
-            width="120"
-            align="center"
-        />
-        <el-table-column
-            prop="userId"
-            label="유저 아이디"
             width="100"
             align="center"
-        >
-        </el-table-column>
+        />
+
         <el-table-column
             label="본인여부"
             width="100"
@@ -40,7 +34,7 @@
 
         <el-table-column
             label="목적"
-            width="120"
+            width="100"
             align="center"
         >
           <template #default="{ row }">
@@ -57,7 +51,7 @@
         <el-table-column
             prop="accessedAt"
             label="출입 시간"
-            width="100"
+            min-width="100"
             align="center"
         >
         </el-table-column>
@@ -73,7 +67,7 @@
         </el-table-column>
         <el-table-column
             label="상세보기"
-            width="120"
+            width="100"
             align="center"
         >
 
@@ -86,8 +80,6 @@
       </el-table>
 
 
-
-      <!-- 페이지네이션 -->
       <div class="access-history__pagination">
         <el-pagination
             background
@@ -104,7 +96,6 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-
 import {useRouter} from "vue-router";
 import {adminAccessHistoryAll} from "@/api/admin.js";
 
@@ -197,15 +188,11 @@ onMounted(() => {
   border-radius: 16px;
   overflow: hidden;
 }
-
-.access-history__table-header {
-  background-color: #f7f9fc !important;
-  font-weight: 600;
-}
-
 .access-history__pagination {
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
 }
 </style>
+
+

@@ -93,6 +93,12 @@ export async function adminNoticeDelete(code) {
       Authorization: `Bearer ${token}`,
     },
   });
+}export async function adminBoxListAll() {
+  return await api.get('/admin/room/boxes', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 export async function adminReservationAll({ page, size }) {
     return await api.get('/admin/reservations', {

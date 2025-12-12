@@ -13,6 +13,7 @@
         <nav class="menu-list">
           <router-link to="/mypage/user" class="menu">유저정보</router-link>
           <router-link to="/mypage/entry" class="menu">출입내역</router-link>
+          <router-link to="/mypage/inout" class="menu">입출고 현황</router-link>
           <router-link to="/mypage/inventory" class="menu">재고 현황</router-link>
           <router-link to="/mypage/reservations" class="menu">예약내역</router-link>
           <router-link to="/mypage/inquiry" class="menu">문의내역</router-link>

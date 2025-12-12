@@ -1,6 +1,6 @@
 <template>
   <div class="notice-detail">
-    <h2 class="notice-detail__title">공지사항 관리</h2>
+    <h2 class="notice-detail__title">공지사항 상세</h2>
 
     <el-card class="notice-detail__card" shadow="never">
 

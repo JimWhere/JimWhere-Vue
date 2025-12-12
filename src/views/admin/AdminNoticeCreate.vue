@@ -4,7 +4,6 @@
 
     <el-card class="notice-detail__card" shadow="never">
 
-      <!-- 공지사항 제목 -->
       <div class="notice-detail__section">
         <label class="notice-detail__label">공지사항 제목</label>
         <el-input
@@ -13,7 +12,6 @@
         />
       </div>
 
-      <!-- 공지사항 내용 -->
       <div class="notice-detail__section">
         <label class="notice-detail__label">공지사항 내용</label>
         <el-input
@@ -82,7 +80,10 @@ const goBack =  async () => {
   location.reload();
 };
 
-onMounted();
+onMounted(() => {
+  title.value = "";
+  content.value = "";
+});
 </script>
 
 <style scoped>

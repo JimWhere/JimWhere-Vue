@@ -4,9 +4,11 @@
     <div class="notice__header">
       <h2>공지사항 관리</h2>
 
+      <div class="notice__actions">
       <el-button type="primary" size="small" @click="goCreate()" class="noticeCreate">
         공지사항 생성
       </el-button>
+      </div>
     </div>
 
 
@@ -25,9 +27,6 @@
             width="140"
             align="center"
         >
-          <template #default="{ row }">
-            No.{{ row.noticeCode }}
-          </template>
         </el-table-column>
 
         <el-table-column
@@ -138,23 +137,29 @@ onMounted(fetchNoticeList)
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
+  height: 100%;
   padding: 24px 32px;
   border-radius: 10px;
-  height: 100%;
   box-sizing: border-box;
 }
 
 .notice__header {
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
+  margin-bottom: 16px;
   color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
 .notice__header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
+}
+.notice__actions{
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .notice__card {
@@ -165,10 +170,7 @@ onMounted(fetchNoticeList)
   overflow: hidden;
 }
 
-.notice__table-header {
-  background-color: #f7f9fc !important;
-  font-weight: 600;
-}
+
 
 .notice__pagination {
   display: flex;
