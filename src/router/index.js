@@ -7,7 +7,6 @@ import MyPageLayout from '@/components/layouts/mypage/MypageLayout.vue'
 
 // 임시로 보여줄 페이지 1개 생성하여 import
 import UserInfo from '@/views/mypage/UserInfo.vue'
-import EntryHistory from "@/views/mypage/EntryHistory.vue";
 import Reservations from "@/views/mypage/Reservations.vue";
 import Inventory from "@/views/mypage/Inventory.vue";
 import Inquiry from "@/views/mypage/Inquiry.vue";
@@ -17,7 +16,6 @@ import Home from '@/views/Home.vue'
 import AdminLayout from "@/components/layouts/admin/AdminLayout.vue"
 import AdminHome from "@/views/admin/AdminHome.vue"
 import AdminUsers from "@/views/admin/AdminUsers.vue"
-import AdminEntry from "@/views/admin/AdminEntry.vue"
 import AdminInventory from "@/views/admin/AdminInventory.vue"
 import AdminReservations from "@/views/admin/AdminReservations.vue"
 import AdminInquiry from "@/views/admin/AdminInquiry.vue"
@@ -41,8 +39,6 @@ import PaymentFail from '@/views/payment/PaymentFail.vue'
 import EntryQrView from "@/views/entry/EntryQrView.vue";
 import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
 import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
-import EntryHistoryDetail from "@/views/mypage/EntryHistoryDetail.vue";
-import AdminEntryDetail from "@/views/admin/AdminEntryDetail.vue";
 import InOutHistory from "@/views/mypage/InOutHistory.vue";
 import AdminInOutHistory from "@/views/admin/AdminInOutHistory.vue";
 
@@ -70,8 +66,6 @@ const router = createRouter({
                 { path: "", redirect: "/admin/home" },
                 { path: "home", component: AdminHome },
                 { path: "users", component: AdminUsers },
-                { path: "entry", component: AdminEntry },
-                { path: "entry/detail",name:'AdminEntryDetail', component: AdminEntryDetail },
                 { path: "inventory", component: AdminInventory },
                 { path: "inout",name:'AdminInOutHistory', component: AdminInOutHistory },
                 { path: "reservations", component: AdminReservations },
@@ -103,8 +97,6 @@ const router = createRouter({
             component: MyPageLayout,
             children: [
                 { path: "user", component: UserInfo },
-                { path: "entry", component: EntryHistory },
-                { path: "entry/detail",name:'EntryHistoryDetail', component: EntryHistoryDetail },
                 { path: "reservations", component: Reservations },
                 { path: "inventory", component: Inventory },
                 { path: "inout",name:'InOutHistory', component: InOutHistory },

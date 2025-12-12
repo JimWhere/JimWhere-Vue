@@ -50,6 +50,7 @@ const content = ref('')
 const sr=ref({
   inquiryTitle:"",
   inquiryContent:"",
+  inquiryAnswer:"",
 })
 
 const submitInquiry = async () => {

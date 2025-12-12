@@ -80,8 +80,8 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import {noticeAll} from "@/api/notice.js";
 
-import { noticeAll} from "@/api/admin.js";
 
 const router = useRouter()
 

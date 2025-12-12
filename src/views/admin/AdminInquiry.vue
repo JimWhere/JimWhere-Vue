@@ -30,6 +30,12 @@
             min-width="220"
             align="center"
         />
+        <el-table-column
+            prop="userName"
+            label="문의 작성자"
+            min-width="100"
+            align="center"
+        />
 
         <el-table-column
             prop="createdAt"

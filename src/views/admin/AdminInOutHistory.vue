@@ -1,4 +1,4 @@
-<!-- StockInOutHistory.vue -->
+
 <template>
   <div class="inout-history">
     <div class="inout-history__header">
@@ -13,7 +13,7 @@
           border
           header-cell-class-name="inout-history__table-header"
       >
-        <!-- 입출고 번호 -->
+
         <el-table-column
             prop="inOutHistoryCode"
             label="입출고 번호"
@@ -21,22 +21,20 @@
             align="center"
         />
 
-        <!-- 입출고 타입 IN → 입고 / OUT → 출고 -->
+
         <el-table-column label="유형" width="120" align="center">
           <template #default="{ row }">
             {{ row.inOutType === 'IN' ? '입고' : '출고' }}
           </template>
         </el-table-column>
 
-        <!-- 물품 이름 -->
         <el-table-column
             prop="inOutName"
             label="물품 이름"
-            width="160"
+            min-widt="160"
             align="center"
-        />
+        /><!--min-width =>최소 너비 ,기본적으로 남은 공간 채움-->
 
-        <!-- 수량 -->
         <el-table-column
             prop="inOutQuantity"
             label="수량"

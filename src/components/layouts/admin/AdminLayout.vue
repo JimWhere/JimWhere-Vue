@@ -22,7 +22,13 @@
           <router-link to="/admin/inventory" class="menu">재고 관리</router-link>
           <router-link to="/admin/reservations" class="menu">예약 관리</router-link>
           <router-link to="/admin/inquiry" class="menu">문의 관리</router-link>
-          <router-link to="/admin/notice" class="menu">공지 관리</router-link>
+          <router-link
+              to="/admin/notice"
+              class="menu"
+              active-class="active"
+          >
+            공지 관리
+          </router-link>
         </nav>
 
       </aside>
@@ -90,10 +96,14 @@
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
-.menu.router-link-active {
-  color: #2b84ff;
+:deep(.menu.router-link-active),
+:deep(.menu.router-link-exact-active) {
+  color: #2b84ff !important;
   font-weight: bold;
 }
+
+
+
 
 /* 오른쪽 메인 */
 .main {
