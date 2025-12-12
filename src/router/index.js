@@ -26,9 +26,14 @@ import {useAuthStore} from "@/stores/authStore.js";
 import {nextTick} from "vue";
 
 
-//entry
+// entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
 import EntryRequestView from "@/views/entry/EntryRequestView.vue";
+import EntryDetailView from "@/views/mypage/EntryDetailView.vue";
+import AdminEntryDetailView from "@/views/admin/AdminEntryDetailView.vue";
+
+// alarm
+import AlarmView from "@/views/alarm/AlarmView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +61,7 @@ const router = createRouter({
                 { path: "reservations", component: AdminReservations },
                 { path: "inquiry", component: AdminInquiry },
                 { path: "notice", component: AdminNotice },
+                { path: "entry/detail", component: AdminEntryDetailView },
             ],
             meta: { requiresAdmin: true }
         },
@@ -85,6 +91,7 @@ const router = createRouter({
                 { path: "inventory", component: Inventory },
                 { path: "inquiry", component: Inquiry },
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
+                { path: "entry/detail", name: 'EntryDetail', component: EntryDetailView }
             ]
         },
 
@@ -99,7 +106,14 @@ const router = createRouter({
             path: '/entry/request',
             name: 'EntryRequest',
             component: EntryRequestView
+        },
+
+        {
+            path: '/alarm',
+            name: 'Alarm',
+            component: AlarmView
         }
+
     ],
 })
 
