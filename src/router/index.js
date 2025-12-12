@@ -32,12 +32,23 @@ import Notice from "@/views/notice/Notice.vue";
 import NoticeDetail from "@/views/notice/NoticeDetail.vue";
 
 
-//entry
+import TossPayPage from '@/views/payment/TossPayPage.vue'
+import PaymentSuccess from '@/views/payment/PaymentSuccess.vue'
+import PaymentFail from '@/views/payment/PaymentFail.vue'
+
+
+// entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
+import EntryRequestView from "@/views/entry/EntryRequestView.vue";
+import EntryDetailView from "@/views/mypage/EntryDetailView.vue";
+import AdminEntryDetailView from "@/views/admin/AdminEntryDetailView.vue";
+
+// alarm
+import AlarmView from "@/views/alarm/AlarmView.vue";
+
+// inout
 import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
 import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
-import EntryHistoryDetail from "@/views/mypage/EntryHistoryDetail.vue";
-import AdminEntryDetail from "@/views/admin/AdminEntryDetail.vue";
 import InOutHistory from "@/views/mypage/InOutHistory.vue";
 import AdminInOutHistory from "@/views/admin/AdminInOutHistory.vue";
 
@@ -75,16 +86,18 @@ const router = createRouter({
                 { path: "home", component: AdminHome },
                 { path: "users", component: AdminUsers },
                 { path: "entry", component: AdminEntry },
-                { path: "entry/detail",name:'AdminEntryDetail', component: AdminEntryDetail },
                 { path: "inventory", component: AdminInventory },
                 { path: "inout",name:'AdminInOutHistory', component: AdminInOutHistory },
                 { path: "reservations", component: AdminReservations },
+                { path: "inquiry", component: AdminInquiry },
+                { path: "notice", component: AdminNotice },
+                { path: "entry/detail", component: AdminEntryDetailView },
                 { path: "inquiry", name:'AdminInquiry',component: AdminInquiry },
                 { path: "inquiry/detail",name:'AdminInquiryDetail', component: AdminInquiryDetail },
                 { path: "notice",name:'AdminNotice', component: AdminNotice },
                 { path: "notice/detail",name:'AdminNoticeDetail', component: AdminNoticeDetail },
                 { path: "notice/create",name:'AdminNoticeCreate', component: AdminNoticeCreate },
-            ],
+            ]
         },
 
         {
@@ -108,16 +121,31 @@ const router = createRouter({
             children: [
                 { path: "user", component: UserInfo },
                 { path: "entry", component: EntryHistory },
-                { path: "entry/detail",name:'EntryHistoryDetail', component: EntryHistoryDetail },
                 { path: "reservations", component: Reservations },
                 { path: "inventory", component: Inventory },
                 { path: "inout",name:'InOutHistory', component: InOutHistory },
                 { path: "inquiry", name:'Inquiry',component: Inquiry },
                 { path: "inquiry/create",name:'InquiryCreate', component: InquiryCreate },
                 { path: "inquiry/detail",name:'InquiryDetail', component: InquiryDetail },
-
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
+                { path: "entry/detail", name: 'EntryDetail', component: EntryDetailView }
             ]
+        },
+
+        {
+            path: '/payments/request',
+            name: 'TossPay',
+            component: TossPayPage,
+        },
+        {
+            path: '/payments/success',
+            name: 'PaymentSuccess',
+            component: PaymentSuccess,
+        },
+        {
+            path: '/payments/fail',
+            name: 'PaymentFail',
+            component: PaymentFail,
         },
 
         {
@@ -125,7 +153,20 @@ const router = createRouter({
             name: 'EntryQr',
             component: EntryQrView,
             meta: {hideHeader: true},
+        },
+
+        {
+            path: '/entry/request',
+            name: 'EntryRequest',
+            component: EntryRequestView
+        },
+
+        {
+            path: '/alarm',
+            name: 'Alarm',
+            component: AlarmView
         }
+
     ],
 })
 

@@ -71,7 +71,9 @@
             </el-form-item>
 
             <el-form-item label="물품명">
-              <el-input v-model="editRow.inOutName" placeholder="물품명을 입력하세요" />
+              <el-input v-model="editRow.inOutName"
+                        border="none"
+                        placeholder="물품명을 입력하세요" />
             </el-form-item>
 
             <el-form-item label="수량">
@@ -210,4 +212,12 @@ onMounted(fetchStockInOut)
   justify-content: center;
   padding: 12px 0 4px;
 }
+
+:deep(.el-input__wrapper) {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
 </style>

@@ -1,3 +1,5 @@
+HOME
+
 <script setup lang="ts">
 import RoomCardList from "@/views/mainPage/RoomCardList.vue";
 </script>
