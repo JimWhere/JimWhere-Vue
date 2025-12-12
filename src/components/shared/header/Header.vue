@@ -48,7 +48,7 @@ const goHome = () => {
 .menu-btn .hamburger::after{ top:6px }
 
 .logo-wrap{ display:flex; align-items:center; justify-content:center; flex:1 }
-.logo-wrap img{ height:40px; object-fit:contain; cursor:pointer;}
+.logo-wrap img{ height:70px; object-fit:contain; cursor:pointer;}
 
 .spacer{ width:42px; height:42px }
 
