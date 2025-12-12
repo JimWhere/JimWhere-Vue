@@ -47,13 +47,10 @@ export async function adminNoticeDelete(code) {
   });
 }
 export async function adminReservationAll({ page, size }) {
-    return await api.get('/admin/reservations', {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+    return await api.get("/admin/reservations", {
         params: {
             page: page - 1,
             size: size,
-        }
+        },
     });
 }
