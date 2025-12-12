@@ -28,7 +28,7 @@ function handleClose() { emit('close') }
 }
 
 /* make close icon white as well */
-.app-tag >>> .el-tag__close{
+.app-tag :deep(.el-tag__close){
   color: #fff !important;
 }
 </style>

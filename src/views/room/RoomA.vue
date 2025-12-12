@@ -1,23 +1,31 @@
-<!--
 <template>
-
-
     <main class="page">
       <section class="room-card">
-        <h2 class="room-title">{{ roomType }}방 내부 구조</h2>
+        <h2 class="room-title">{{ selectedRoom }} 방 배치</h2>
         <div class="room-layout">
 
           <div class="room-inner" :style="roomGridStyle">
 
             <div
-                class="bed"
-                v-for="bed in beds"
-                :key="bed.label"
-                :class="{ 'bed-after-aisle': bed.isAfterAisle }"
+              class="bed"
+              v-for="bed in beds"
+              :key="bed.label"
+              :class="{
+                'bed-after-aisle': bed.isAfterAisle,
+                occupied: (boxMap[bed.label] && (Number(boxMap[bed.label].boxCurrentCount) || 0) > 0),
+                empty: !boxMap[bed.label] || (Number(boxMap[bed.label].boxCurrentCount) || 0) === 0
+              }"
             >
-              {{ bed.label }}
-            </div>
+              <div class="bed-label">{{ bed.label }}</div>
 
+              <template v-if="hasVisibleBox(bed.label)">
+                <div class="box-content">{{ getBox(bed.label).boxContent || '-' }}</div>
+                <div class="box-count">{{ getBox(bed.label).boxCurrentCount ?? 0 }} 개</div>
+              </template>
+              <template v-else>
+                <div class="box-empty">보관 가능</div>
+              </template>
+            </div>
 
             <div class="entrance">입구</div>
           </div>
@@ -26,6 +34,10 @@
 
 
       <section class="booking-card">
+        <div class="room-select">
+          <label>방 이름</label>
+          <AppDropdown v-model="selectedRoom" :options="roomOptions" />
+        </div>
         <div class="date-inputs">
           <div class="date-field">
             <label>시작일</label>
@@ -77,20 +89,35 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import Header from "@/components/shared/header/Header.vue";
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router';
+import { listBoxesByRoom } from '@/api/box';
+import { watch } from 'vue'
 import router from "@/router/index.js";
-import RoomB from "@/views/room/RoomB.vue";
+import AppDropdown from '@/components/shared/form/AppDropdown.vue';
+
+const route = useRoute();
+const boxes = ref([]);
+
+// dropdown options for selecting a specific room
+const roomOptions = [
+  { value: 'A1', label: 'A1' },
+  { value: 'A2', label: 'A2' },
+  { value: 'A3', label: 'A3' },
+  { value: 'A4', label: 'A4' },
+  { value: 'A5', label: 'A5' }
+]
+const selectedRoom = ref(roomOptions[0].value)
 
 const nightlyPrice = 10000
-const roomType = 'A'
+const boxType = 'a'
 
 const columnCount = ref(4)
 const bedsPerColumn = ref(4)
 
 const roomGridStyle = computed(() => ({
-  '&#45;&#45;cols': columnCount.value,
-  '&#45;&#45;rows': bedsPerColumn.value,
+  '--cols': columnCount.value,
+  '--rows': bedsPerColumn.value,
 }))
 
 
@@ -104,7 +131,7 @@ const beds = computed(() => {
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       result.push({
-        label: `${roomType}${num}`,
+        label: `${boxType}${num}`,
         isAfterAisle: c === middleColIndex,
       })
       num++
@@ -112,7 +139,6 @@ const beds = computed(() => {
   }
   return result
 })
-
 
 const today = new Date()
 const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
@@ -230,88 +256,214 @@ const onClickDate = (cell) => {
     endDate.value = toInputValue(clicked)
   }
 }
-const goToReservation=()=>{
-  router.push(name="RoomB")
+
+// 예약하기 -> 리다이렉트 
+const goToReservation = () => {
+  // selectedRoom 정규화 (v-model이 object일 경우 대비)
+  const sel = selectedRoom.value
+  const roomStr = (typeof sel === 'string') ? sel : (sel?.value ?? sel?.label ?? 'A1')
+
+  // roomCode 매핑 (예: A1..A5 -> 1..5, B1..B5 -> 6..10, C1..C5 -> 11..15)
+  function mapRoomToCodeLocal(roomName) {
+    if (!roomName) return 1
+    const prefix = roomName[0].toUpperCase()
+    const num = Number(roomName.slice(1)) || 1
+    if (prefix === 'A') return num
+    if (prefix === 'B') return 5 + num
+    if (prefix === 'C') return 10 + num
+    return num
+  }
+
+  // roomTypeCode 매핑 (백엔드 규칙에 맞게 수정하세요)
+  function mapRoomTypeToCode(roomNameOrType) {
+    // 예: A/B/C -> 1/2/3  (필요하면 'S','M','L' 규칙으로 변경)
+    const ch = (typeof roomNameOrType === 'string' ? roomNameOrType[0] : String(roomNameOrType)).toUpperCase()
+    if (ch === 'A') return 1
+    if (ch === 'B') return 2
+    if (ch === 'C') return 3
+    return 1
+  }
+
+  const roomCode = mapRoomToCodeLocal(roomStr)
+  const roomTypeCode = mapRoomTypeToCode(roomStr) // 숫자
+  const roomTypeName = roomStr[0].toUpperCase() // 예: 'A' 또는 필요하면 다른 값 사용
+
+  // startDate/endDate에 시간 붙이기 (예: '2025-12-20' -> '2025-12-20T12:00:00')
+  // 원하는 시간이 있으면 변경하세요.
+  const timeSuffix = 'T12:00:00'
+  const startAtISO = startDate.value ? `${startDate.value}${timeSuffix}` : ''
+  const endAtISO = endDate.value ? `${endDate.value}${timeSuffix}` : ''
+
+  const amount = totalPrice.value
+
+  // 디버그 로그 확인
+  console.log({ roomStr, roomCode, roomTypeCode, roomTypeName, startAtISO, endAtISO, amount })
+
+  router.push({
+    path: '/payments/request',
+    query: {
+      roomCode: String(roomCode),
+      roomTypeCode: String(roomTypeCode), // 숫자 형식이 필요하면 그대로
+      startAt: startAtISO,
+      endAt: endAtISO,
+      amount: String(amount),
+      roomTypeName, // 문자열
+    },
+  })
 }
+
+// Box 매핑에서 label에 대응하는 항목을 안전하게 반환
+function getBox(label) {
+  return boxMap.value[label] ?? boxMap.value[label.toLowerCase()] ?? boxMap.value[label.toUpperCase()] ?? null
+}
+
+// 화면에 박스 정보를 보여줘야 하는지 여부 판단
+function hasVisibleBox(label) {
+  const b = getBox(label)
+  if (!b) return false
+  const content = b.boxContent
+  const count = Number(b.boxCurrentCount ?? 0)
+  // 내용 문자열이 비어있거나 null/undefined 이고, 재고도 0이면 '비어있음'으로 간주
+  return (content !== null && content !== undefined && String(content).trim() !== '') || count > 0
+}
+
+const boxMap = computed(() => {
+  const map = {}
+  boxes.value.forEach(b => {
+    const raw = b.boxCode ?? b.boxLabel ?? b.box_id ?? b.label ?? b.boxName
+    if (!raw) return
+    const s = String(raw)
+
+    // map raw forms
+    map[s] = b
+    map[s.toLowerCase()] = b
+    map[s.toUpperCase()] = b
+
+    // numeric part (e.g., API returns '1' but bed label is 'a1')
+    const num = s.replace(/\D/g, '')
+    if (num) {
+      map[num] = b
+      map['a' + num] = b
+      map['A' + num] = b
+    }
+  })
+  return map
+})
+
+// selectedRoom -> roomCode 변환
+function mapRoomToCode(roomName) {
+  if (!roomName) return 1
+  const prefix = roomName[0].toUpperCase()
+  const num = Number(roomName.slice(1)) || 1
+  if (prefix === 'A') return num
+}
+
+// fetch 함수 
+async function fetchBoxesForRoom(roomName) {
+  const roomCode = mapRoomToCode(roomName)
+  try {
+    const apiRes = await listBoxesByRoom(roomCode)
+    const data = apiRes.data ?? apiRes
+
+    console.log('api response : ' + data);
+
+    boxes.value = Array.isArray(data) ? data : (data?.data ?? [])
+  } catch (e) {
+    console.error('박스 목록 조회 실패')
+    boxes.value = []
+  }
+}
+
+// 초기 호출과 watch 연결
+onMounted(() => {
+  fetchBoxesForRoom(selectedRoom.value)
+})
+
+watch(selectedRoom, (newVal) => {
+  fetchBoxesForRoom(newVal)
+})
 
 </script>
 
 <style scoped>
+@import "@/assets/shared/styles/theme.css";
+@import "@/assets/shared/styles/font.css";
 
 .page {
   padding-left:5%;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  font-family: var(--app-font);
+  font-weight: var(--app-font-weight-regular);
+  /* align-items: center; */
 }
 
 .room-card {
-
-  background: #ffffff;
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface, #ffffff);
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 5%;
   margin-right: 10%;
 }
 .booking-card {
-
-  background: #ffffff;
+  background: var(--color-surface, #ffffff);
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 24px;
 }
 
-.room-card {
-  flex: 3;
-}
-
-.booking-card {
-  flex: 2;
-}
-
-
 .room-title {
-  text-align: center;
   margin-bottom: 16px;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: var(--app-font-weight-semibold);
 }
 
 .room-layout {
   display: flex;
   justify-content: center;
+  /* margin-bottom: 60px; */
 }
 
 .room-inner {
   position: relative;
   width: 100%;
-  max-width: 420px;
-  height: 280px;
+  height: 500px;
   border-radius: 8px;
-  border: 3px solid #000000;
+  border: 3px solid var(--color-border, #000000);
   padding: 24px 24px 60px;
-  background: #f9fbff;
+  background: var(--color-bg-muted, #f9fbff);
   box-sizing: border-box;
 
   display: grid;
-  grid-template-columns: repeat(var(&#45;&#45;cols), 1fr);
-  grid-template-rows: repeat(var(&#45;&#45;rows), 1fr);
-  gap: 8px;
-  align-content: flex-start;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  grid-template-rows: repeat(var(--rows, 4), 1fr);
+  gap: 20px;
+  align-content: stretch; /* fill the available height so rows are equal */
+  align-items: stretch;  /* ensure children stretch to fill rows */
+  justify-items: stretch;
 }
 
 .bed {
-  background: #c4cffc;
+  background: var(--color-primary-200, #c4cffc);
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  /* make each bed fill its grid cell */
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  color: var(--color-on-primary, inherit);
+  position:relative;
+  padding:8px;
+  flex-direction:column;
 }
 
-
 .bed-after-aisle {
-  margin-left: 16px;
+  margin-left: 0;
 }
 
 .entrance {
@@ -320,13 +472,12 @@ const goToReservation=()=>{
   transform: translateX(-50%);
   bottom: 10px;
   padding: 6px 18px;
-  border: 2px solid #000;
+  border: 2px solid var(--color-border, #000);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--color-surface, #ffffff);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--app-font-weight-semibold);
 }
-
 
 .date-inputs {
   display: flex;
@@ -343,46 +494,31 @@ const goToReservation=()=>{
   font-size: 14px;
 }
 
-.date-field label {
-  font-weight: 600;
-}
+.date-field label { font-weight: var(--app-font-weight-semibold); }
 
 .date-field input[type='date'] {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #ccd3e0;
+  border: 1px solid var(--color-border-muted, #ccd3e0);
   font-size: 14px;
 }
-
 
 .calendar {
   margin-bottom: 20px;
   border-radius: 12px;
-  border: 1px solid #dde4f0;
-  background: #fdfdff;
+  border: 1px solid var(--color-border-muted, #dde4f0);
+  background: var(--color-surface, #fdfdff);
   padding: 16px;
 }
 
-.calendar-header {
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
+.calendar-header { text-align: center; font-weight: var(--app-font-weight-semibold); margin-bottom: 12px }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px }
 
-.calendar-day-name {
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-}
+.calendar-day-name { text-align: center; font-size: 12px; font-weight: var(--app-font-weight-semibold) }
 
 .calendar-cell {
-  height: 28px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -391,64 +527,49 @@ const goToReservation=()=>{
   cursor: pointer;
 }
 
-.calendar-cell.is-empty {
-  background: transparent;
-  cursor: default;
-}
+.calendar-cell.is-empty { background: transparent; cursor: default }
+.calendar-cell.is-in-range { background: var(--color-primary-100, #d4e5ff) }
+.calendar-cell.is-start, .calendar-cell.is-end { background: var(--color-primary, #78b3ff); color: var(--color-on-primary, #ffffff); font-weight: var(--app-font-weight-semibold) }
+.calendar-cell.is-today { border: 1px solid var(--color-primary-500, #4b7bec); box-shadow: 0 0 0 2px rgba(75, 123, 236, 0.2) }
 
-
-.calendar-cell.is-in-range {
-  background: #d4e5ff;
-}
-
-.calendar-cell.is-start,
-.calendar-cell.is-end {
-  background: #78b3ff;
-  color: #ffffff;
-  font-weight: 700;
-}
-
-.calendar-cell.is-today {
-  border: 1px solid #4b7bec;
-  box-shadow: 0 0 0 2px rgba(75, 123, 236, 0.2);
-}
-
-
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
-.price-row .price {
-  font-size: 18px;
-}
+.price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px }
+.price-row .price { font-size: 18px }
 
 .reserve-button {
   width: 100%;
   padding: 12px 16px;
   border-radius: 12px;
   border: none;
-  font-weight: 600;
+  font-weight: var(--app-font-weight-semibold);
   font-size: 16px;
   cursor: pointer;
-  background: #78b3ff;
-  color: #ffffff;
+  background: var(--color-primary, #78b3ff);
+  color: var(--color-on-primary, #ffffff);
   transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
+.reserve-button:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); transform: translateY(-1px) }
 
-.reserve-button:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
+.room-select{ margin:12px 0 8px }
 
+.bed-specs p{ margin:8px 0; font-size:14px }
 
-@media (max-width: 900px) {
-  .page {
-    flex-direction: column;
-  }
-}
+/* bed inner labels and status styles */
+.bed{ position:relative; padding:8px; display:flex; flex-direction:column; justify-content:center; align-items:center }
+.bed-label{ font-size:12px; font-weight:700; margin-bottom:6px }
+.box-content{ font-size:11px; margin-top:4px; opacity:.95 }
+.box-count{ font-size:13px; font-weight:700; margin-top:6px }
+.box-empty{ font-size:12px; color:var(--color-gray-500); }
+
+/* 상태에 따른 색상 */
+.bed.occupied{ background: linear-gradient(180deg, #ffdfe0 0%, #ffbdbf 100%); color:#5b1b1b }
+.bed.empty{ background: linear-gradient(180deg, var(--color-primary-200,#c4cffc) 0%, #a9c8ff 100%); color:#07213a }
+
+/* 낮은 재고(예: count <= 1) 강조 */
+.bed.low-stock{ box-shadow: 0 0 0 3px rgba(255,165,0,0.12); border: 1px solid rgba(255,165,0,0.18) }
+
+/* make inner text readable on small boxes */
+.bed .bed-label, .bed .box-content, .bed .box-count{ text-align:center; word-break:break-word }
+
+@media (max-width: 900px) { .page { flex-direction: column } }
 </style>
--->
+
