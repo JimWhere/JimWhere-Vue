@@ -23,12 +23,13 @@
 
 <script setup>
 import { ref } from "vue"
-import { useRouter } from "vue-router"
+import { useRouter, useRoute } from "vue-router"   // 🔥 useRoute 추가
 import { useAuthStore } from "@/stores/authStore"
 
 const id = ref("")
 const password = ref("")
 const router = useRouter()
+const route = useRoute()                            // 🔥 현재 라우트
 const authStore = useAuthStore()
 
 const login = async () => {
@@ -37,28 +38,32 @@ const login = async () => {
     return
   }
 
-  // 공통 로그인 엔드포인트 호출
   const res = await authStore.login({
     userEmail: id.value,
     password: password.value,
   })
 
-  console.log("로그인 응답", res)
-  if (!res.success) {
-    alert(res.message || "로그인 실패")
+  if (!res?.success) {
+    alert(res?.message || "로그인 실패")
     return
   }
 
-  // 여기서 관리자 여부 필터링
+  /* 관리자 여부 체크 */
   if (!authStore.user || authStore.user.role !== "ADMIN") {
     alert("관리자만 로그인할 수 있습니다.")
     authStore.logout?.()
     return
   }
 
-  // ADMIN 인증 성공
+  /* ✅ redirect 처리 */
+  const redirect = route.query.redirect
   alert("관리자 로그인 성공!")
-  router.push("/admin")
+
+  router.push(
+      redirect
+          ? String(redirect)   // ex) /entry/qr
+          : "/admin"
+  )
 }
 </script>
 
@@ -104,5 +109,5 @@ const login = async () => {
   background: #87c9ff;
   color: #fff;
 }
-
 </style>
+
