@@ -31,7 +31,7 @@ const internalValue = ref('')
 }
 
 /* Hide inner el-input border and background so only outer border shows */
-.app-input >>> .el-input__inner{
+.app-input :deep(.el-input__inner) {
   width:100%;
   border: none !important;
   box-shadow: none !important;
@@ -41,12 +41,12 @@ const internalValue = ref('')
   height: auto;
 }
 
-.app-input >>> .el-input__inner:focus{
+.app-input :deep(.el-input__inner:focus) {
   outline: none !important;
   box-shadow: none !important;
 }
 
 /* make placeholder slightly dimmer to match theme */
-.app-input >>> .el-input__inner::placeholder{ color: rgba(0,0,0,0.35) }
+.app-input :deep(.el-input__inner)::placeholder{ color: rgba(0,0,0,0.35) }
 
 </style>

@@ -19,6 +19,6 @@ const props = defineProps({ title: { type: String, default: '' }, message: { typ
 @import "@/assets/shared/styles/font.css";
 
 .app-toast{ font-family: var(--app-font); }
-.app-toast >>> .el-notification__title{ font-weight: var(--app-font-weight-semibold); }
-.app-toast >>> .el-notification__content{ color: var(--color-text-muted) }
+.app-toast :deep() .el-notification__title{ font-weight: var(--app-font-weight-semibold); }
+.app-toast :deep() .el-notification__content{ color: var(--color-text-muted) }
 </style>

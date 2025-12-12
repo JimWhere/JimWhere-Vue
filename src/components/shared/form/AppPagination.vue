@@ -42,8 +42,8 @@ function onChange(page){
 
 .app-pagination{ display:flex; justify-content:center; align-items:center; font-family:var(--app-font); font-weight:var(--app-font-weight-semibold) }
 /* style the pager buttons to match theme */
-.app-pagination >>> .el-pager li a,
-.app-pagination >>> .el-pager li span{ font-size:16px; padding:6px 10px }
-.app-pagination >>> .el-pager li.active a{ background:var(--color-primary-200); border-radius:8px; color:var(--color-primary-800) }
-.app-pagination >>> .el-icon{ color:var(--color-primary-800) }
+.app-pagination :deep(.el-pager li a),
+.app-pagination :deep(.el-pager li span){ font-size:16px; padding:6px 10px }
+.app-pagination :deep(.el-pager li.active a){ background:var(--color-primary-200); border-radius:8px; color:var(--color-primary-800) }
+.app-pagination :deep(.el-icon){ color:var(--color-primary-800) }
 </style>

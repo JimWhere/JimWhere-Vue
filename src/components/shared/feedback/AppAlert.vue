@@ -44,7 +44,7 @@ function handleClose(){ emit('close') }
   background: var(--color-primary);
 }
 
-.app-alert >>> .el-alert__content{ margin-left: 20px }
-.app-alert >>> .el-alert__title{ font-weight: var(--app-font-weight-semibold); font-size: 16px; color: var(--color-text) }
-.app-alert >>> .el-alert__description{ color: var(--color-text-muted); font-size: 14px }
+.app-alert :deep() .el-alert__content{ margin-left: 20px }
+.app-alert :deep() .el-alert__title{ font-weight: var(--app-font-weight-semibold); font-size: 16px; color: var(--color-text) }
+.app-alert :deep() .el-alert__description{ color: var(--color-text-muted); font-size: 14px }
 </style>

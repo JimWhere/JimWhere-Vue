@@ -4,7 +4,8 @@
       <h2 class="title">예약 및 결제 확인</h2>
 
       <!-- 예약 정보 -->
-      <table class="info-table">
+    <table class="info-table">
+      <tbody>
         <tr>
           <th>방 타입</th>
           <td>{{ roomTypeName || '-' }}</td>
@@ -17,7 +18,8 @@
           <th>대여 금액</th>
           <td>{{ formattedAmount }} 원</td>
         </tr>
-      </table>
+      </tbody>
+    </table>
 
       <div class="warning-box">
         <p class="warning-title">주의 사항</p>
