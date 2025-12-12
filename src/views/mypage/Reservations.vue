@@ -74,11 +74,15 @@
         </el-table-column>
       </el-table>
 
-      <!-- 페이지네이션 -->
-      <div class="reservations__pagination" v-if="totalPages > 1">
-        <AppPagination
-            v-model:current="page"
-            :total="totalPages"
+      <!-- ✅ Inquiry와 동일한 Element Plus 페이징으로 교체 -->
+      <div class="reservations__pagination">
+        <el-pagination
+            background
+            layout="prev, pager, next"
+            :current-page="page"
+            :page-size="pageSize"
+            :total="total"
+            @current-change="handleCurrentChange"
         />
       </div>
     </el-card>
@@ -89,14 +93,13 @@
 import { ref, onMounted, watch } from "vue"
 import dayjs from "dayjs"
 
-import AppPagination from "@/components/shared/form/AppPagination.vue"
 import { userReservationList } from "@/api/myPage.js"
 
 // data
 const rows = ref([])
 const page = ref(1)
 const pageSize = ref(10)
-const totalPages = ref(1)
+const total = ref(0)
 const loading = ref(false)
 
 // API 호출
@@ -114,8 +117,7 @@ const fetchReservations = async () => {
 
     const data = body.data
     rows.value = data.content ?? []
-    page.value = (data.page ?? 0) + 1
-    totalPages.value = data.totalPages ?? 1
+    total.value = data.totalElements ?? 0
   } catch (error) {
     console.error("예약 내역 조회 실패", error)
   } finally {
@@ -142,6 +144,9 @@ const paymentStatusLabel = (row) => {
   return row.orderId ? "결제 완료" : "결제 대기"
 }
 
+const handleCurrentChange = (newPage) => {
+  page.value = newPage
+}
 
 onMounted(fetchReservations)
 watch(page, fetchReservations)
@@ -233,7 +238,6 @@ watch(page, fetchReservations)
   color: #ef6c00;
 }
 
-/* 페이지네이션 (Inquiry와 동일) */
 .reservations__pagination {
   display: flex;
   justify-content: center;
