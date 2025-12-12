@@ -11,7 +11,7 @@ import EntryHistory from "@/views/mypage/EntryHistory.vue";
 import Reservations from "@/views/mypage/Reservations.vue";
 import Inventory from "@/views/mypage/Inventory.vue";
 import Inquiry from "@/views/mypage/Inquiry.vue";
-import Home from '@/views/Home.vue'
+import Home from '@/views/home/Home.vue'
 
 //admin
 import AdminLayout from "@/components/layouts/admin/AdminLayout.vue"
