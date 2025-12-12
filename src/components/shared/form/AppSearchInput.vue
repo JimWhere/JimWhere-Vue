@@ -67,4 +67,16 @@ function onSearch(){ emit('search', internalValue.value) }
 
 /* responsive */
 @media (max-width:720px){ .app-search{ min-width:260px } .search-placeholder{ font-size:20px } }
+
+.app-search {
+  display: inline-flex;
+  width: 100%;          /* 부모가 얼마를 주든 100% 안에서만 움직이게 */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.app-search .el-input {
+  width: 100%;
+}
+
 </style>
