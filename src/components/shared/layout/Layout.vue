@@ -14,10 +14,12 @@
     <!-- shared sidebar (uses global store internally) -->
     <Sidebar />
   </div>
+  <ScrollTopButton />
 </template>
 
 <script setup>
 import Sidebar from '@/components/shared/sidebar/Sidebar.vue'
+import ScrollTopButton from "@/components/home/ScrollTopButton.vue";
 </script>
 
 <style scoped>
