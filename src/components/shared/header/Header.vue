@@ -41,7 +41,7 @@ const goHome = () => {
   border:1px solid rgba(91,184,230,0.08);
 }
 
-.menu-btn{ width:42px; height:42px; border-radius:10px; background:#fff; border:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center }
+.menu-btn{cursor:pointer; width:42px; height:42px; border-radius:10px; background:#fff; border:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center }
 .menu-btn .hamburger{ display:block; width:18px; height:2px; background:var(--color-primary-800); position:relative }
 .menu-btn .hamburger::before, .menu-btn .hamburger::after{ content:''; position:absolute; left:0; width:18px; height:2px; background:var(--color-primary-800) }
 .menu-btn .hamburger::before{ top:-6px }
