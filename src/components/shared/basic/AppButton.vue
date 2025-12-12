@@ -17,7 +17,6 @@ const elSize = computed(() => (props.size === 'sm' ? 'small' : props.size === 'l
 </script>
 
 <style scoped>
-@import "@/assets/shared/styles/theme.css";
 @import "@/assets/shared/styles/font.css";
 /* Keep visual adjustments minimal — theme handles colors */
 

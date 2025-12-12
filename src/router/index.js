@@ -7,6 +7,7 @@ import MyPageLayout from '@/components/layouts/mypage/MypageLayout.vue'
 
 // 임시로 보여줄 페이지 1개 생성하여 import
 import UserInfo from '@/views/mypage/UserInfo.vue'
+import EntryHistory from "@/views/mypage/EntryHistory.vue";
 import Reservations from "@/views/mypage/Reservations.vue";
 import Inventory from "@/views/mypage/Inventory.vue";
 import Inquiry from "@/views/mypage/Inquiry.vue";
@@ -16,6 +17,7 @@ import Home from '@/views/Home.vue'
 import AdminLayout from "@/components/layouts/admin/AdminLayout.vue"
 import AdminHome from "@/views/admin/AdminHome.vue"
 import AdminUsers from "@/views/admin/AdminUsers.vue"
+import AdminEntry from "@/views/admin/AdminEntry.vue"
 import AdminInventory from "@/views/admin/AdminInventory.vue"
 import AdminReservations from "@/views/admin/AdminReservations.vue"
 import AdminInquiry from "@/views/admin/AdminInquiry.vue"
@@ -35,8 +37,16 @@ import PaymentSuccess from '@/views/payment/PaymentSuccess.vue'
 import PaymentFail from '@/views/payment/PaymentFail.vue'
 
 
-//entry
+// entry
 import EntryQrView from "@/views/entry/EntryQrView.vue";
+import EntryRequestView from "@/views/entry/EntryRequestView.vue";
+import EntryDetailView from "@/views/mypage/EntryDetailView.vue";
+import AdminEntryDetailView from "@/views/admin/AdminEntryDetailView.vue";
+
+// alarm
+import AlarmView from "@/views/alarm/AlarmView.vue";
+
+// inout
 import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
 import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
 import InOutHistory from "@/views/mypage/InOutHistory.vue";
@@ -66,15 +76,19 @@ const router = createRouter({
                 { path: "", redirect: "/admin/home" },
                 { path: "home", component: AdminHome },
                 { path: "users", component: AdminUsers },
+                { path: "entry", component: AdminEntry },
                 { path: "inventory", component: AdminInventory },
                 { path: "inout",name:'AdminInOutHistory', component: AdminInOutHistory },
                 { path: "reservations", component: AdminReservations },
+                { path: "inquiry", component: AdminInquiry },
+                { path: "notice", component: AdminNotice },
+                { path: "entry/detail", component: AdminEntryDetailView },
                 { path: "inquiry", name:'AdminInquiry',component: AdminInquiry },
                 { path: "inquiry/detail",name:'AdminInquiryDetail', component: AdminInquiryDetail },
                 { path: "notice",name:'AdminNotice', component: AdminNotice },
                 { path: "notice/detail",name:'AdminNoticeDetail', component: AdminNoticeDetail },
                 { path: "notice/create",name:'AdminNoticeCreate', component: AdminNoticeCreate },
-            ],
+            ]
         },
 
         {
@@ -97,14 +111,15 @@ const router = createRouter({
             component: MyPageLayout,
             children: [
                 { path: "user", component: UserInfo },
+                { path: "entry", component: EntryHistory },
                 { path: "reservations", component: Reservations },
                 { path: "inventory", component: Inventory },
                 { path: "inout",name:'InOutHistory', component: InOutHistory },
                 { path: "inquiry", name:'Inquiry',component: Inquiry },
                 { path: "inquiry/create",name:'InquiryCreate', component: InquiryCreate },
                 { path: "inquiry/detail",name:'InquiryDetail', component: InquiryDetail },
-
                 { path: "", redirect: "/mypage/user" }, // 기본 진입 시 유저정보로
+                { path: "entry/detail", name: 'EntryDetail', component: EntryDetailView }
             ]
         },
 
@@ -129,7 +144,20 @@ const router = createRouter({
             name: 'EntryQr',
             component: EntryQrView,
             meta: {hideHeader: true},
+        },
+
+        {
+            path: '/entry/request',
+            name: 'EntryRequest',
+            component: EntryRequestView
+        },
+
+        {
+            path: '/alarm',
+            name: 'Alarm',
+            component: AlarmView
         }
+
     ],
 })
 
