@@ -200,7 +200,6 @@ watch(page, fetchReservations)
   overflow: hidden;
 }
 
-/* 테이블 */
 .reservations__table {
   width: 100%;
 }
