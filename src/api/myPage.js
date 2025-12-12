@@ -48,10 +48,25 @@ export async function userInquiryList({page,size}) {
     }
   });
 }
+
 export async function inquiryCreate(request) {
   return await api.post('/user/inquiry',request, {
     headers: {
       Authorization: `Bearer ${token}`,
     }}
 );
+}
+export async function userBoxList() {
+  return await api.get('/user/room/boxes', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+export async function userAvailableBoxCount() {
+  return await api.get('/user/boxes/count', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }

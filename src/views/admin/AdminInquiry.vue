@@ -2,14 +2,12 @@
 <template>
   <div class="inquiry">
 
-    <!-- 제목 -->
     <div class="inquiry__header">
       <h2>문의내역</h2>
       <span class="inquiry__desc">고객님의 문의 기록을 확인할 수 있습니다.</span>
     </div>
 
 
-    <!-- 카드 영역 -->
     <el-card class="inquiry__card" shadow="never">
       <el-table
           :data="rows"
@@ -19,7 +17,6 @@
           class="inquiry__table"
       >
 
-        <!-- 문의 번호 -->
         <el-table-column
             prop="inquiryCode"
             label="문의 번호"
@@ -27,7 +24,6 @@
             align="center"
         />
 
-        <!-- 제목 -->
         <el-table-column
             prop="inquiryTitle"
             label="문의 제목"
@@ -35,7 +31,6 @@
             align="center"
         />
 
-        <!-- 작성일 -->
         <el-table-column
             prop="createdAt"
             label="작성일"
@@ -47,7 +42,6 @@
           </template>
         </el-table-column>
 
-        <!-- 답변 상태 -->
         <el-table-column
             prop="answer"
             label="답변 상태"
@@ -59,7 +53,6 @@
           </template>
         </el-table-column>
 
-        <!-- 상세 -->
         <el-table-column
             label="상세보기"
             width="120"
@@ -74,7 +67,6 @@
 
       </el-table>
 
-      <!-- 페이지네이션 -->
       <div class="inquiry__pagination">
         <el-pagination
             background
@@ -146,43 +138,40 @@ onMounted(fetchInquiryList)
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 30px 40px;
+  padding: 24px 32px;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
-/* 제목 */
+
 .inquiry__header {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
 .inquiry__header h2 {
   margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: #3f3f3f;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .inquiry__desc {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #8a8a8a;
+  margin-left: 12px;
+  font-size: 12px;
+  color: #999;
 }
 
 
 
 .inquiry__card {
   flex: 1;
-  border-radius: 14px;
-  padding: 20px;
-  background: #fafbfd;
-}
-
-
-.inquiry__table-header {
-  background-color: #f1f4f9 !important;
-  font-weight: 600;
-  color: #444;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .inquiry__pagination {

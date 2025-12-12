@@ -38,6 +38,8 @@ import MainInquiryCreate from "@/views/inquriy/MainInquiryCreate.vue";
 import InquiryDetail from "@/views/mypage/InquiryDetail.vue";
 import EntryHistoryDetail from "@/views/mypage/EntryHistoryDetail.vue";
 import AdminEntryDetail from "@/views/admin/AdminEntryDetail.vue";
+import InOutHistory from "@/views/mypage/InOutHistory.vue";
+import AdminInOutHistory from "@/views/admin/AdminInOutHistory.vue";
 
 //room
 import RoomDetail from "@/views/room/RoomDetail.vue"
@@ -75,6 +77,7 @@ const router = createRouter({
                 { path: "entry", component: AdminEntry },
                 { path: "entry/detail",name:'AdminEntryDetail', component: AdminEntryDetail },
                 { path: "inventory", component: AdminInventory },
+                { path: "inout",name:'AdminInOutHistory', component: AdminInOutHistory },
                 { path: "reservations", component: AdminReservations },
                 { path: "inquiry", name:'AdminInquiry',component: AdminInquiry },
                 { path: "inquiry/detail",name:'AdminInquiryDetail', component: AdminInquiryDetail },
@@ -108,6 +111,7 @@ const router = createRouter({
                 { path: "entry/detail",name:'EntryHistoryDetail', component: EntryHistoryDetail },
                 { path: "reservations", component: Reservations },
                 { path: "inventory", component: Inventory },
+                { path: "inout",name:'InOutHistory', component: InOutHistory },
                 { path: "inquiry", name:'Inquiry',component: Inquiry },
                 { path: "inquiry/create",name:'InquiryCreate', component: InquiryCreate },
                 { path: "inquiry/detail",name:'InquiryDetail', component: InquiryDetail },
