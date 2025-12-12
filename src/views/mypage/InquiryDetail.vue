@@ -48,9 +48,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import {
-  inquiryDetail
-} from "@/api/admin.js";
+import {inquiryDetail} from "@/api/inquiry.js";
 
 const route = useRoute();
 const router = useRouter();

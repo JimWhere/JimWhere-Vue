@@ -50,7 +50,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import {adminNoticeDelete, adminNoticeUpdate, noticeDetail} from "@/api/admin.js";
+import {adminNoticeDelete, adminNoticeUpdate} from "@/api/admin.js";
+import {noticeDetail} from "@/api/notice.js";
 
 
 const route = useRoute();

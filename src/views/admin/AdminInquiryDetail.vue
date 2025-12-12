@@ -6,6 +6,8 @@
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의 사항 제목</label>
+        <AppLabel v-model="user">작성자 : {{user}}</AppLabel>
+        <AppLabel v-model="createdAt">작성자일자 : {{createdAt}}</AppLabel>
         <el-input
             v-model="title"
             disabled
@@ -63,8 +65,9 @@ import { useRoute, useRouter } from "vue-router";
 import {
   adminInquiryAnswer,
   adminInquiryDelete,
-  inquiryDetail
 } from "@/api/admin.js";
+import {inquiryDetail} from "@/api/inquiry.js";
+import AppLabel from "@/components/shared/basic/AppLabel.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -72,10 +75,19 @@ const router = useRouter();
 const editMode = ref(false);
 const originalTitle = ref("");
 const originalContent = ref("");
-
+const originalAnswer = ref("");
+const inquiry=ref({
+  inquiryTitle:"",
+  inquiryContent:"",
+  inquiryAnswer:"",
+  userName:"",
+  createdAt:"",
+})
 const title = ref("");
 const content = ref("");
 const answer = ref("");
+const user = ref("");
+const createdAt = ref("");
 
 const fetchDetail = async () => {
   try {
@@ -84,6 +96,9 @@ const fetchDetail = async () => {
 
     title.value = originalTitle.value = data.inquiryTitle;
     content.value = originalContent.value = data.inquiryContent;
+    answer.value = originalAnswer.value =data.inquiryAnswer;
+     user.value=data.userName;
+     createdAt.value = data.createdAt;
 
   } catch (err) {
     console.error("문의 상세 조회 실패", err);
