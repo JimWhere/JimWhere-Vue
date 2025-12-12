@@ -66,6 +66,7 @@ const goAdminHome = () => {
 }
 
 .menu-btn .hamburger {
+  cursor:pointer;
   display: block;
   width: 18px;
   height: 2px;
