@@ -190,7 +190,7 @@ watch(page, fetchReservations)
   color: #999;
 }
 
-/* 결제 상태 뱃지 */
+
 .pay-status {
   display: inline-block;
   padding: 4px 10px;
