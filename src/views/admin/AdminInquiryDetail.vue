@@ -6,15 +6,18 @@
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의 사항 제목</label>
-        <AppLabel v-model="user">작성자 : {{user}}</AppLabel>
-        <AppLabel v-model="createdAt">작성자일자 : {{createdAt}}</AppLabel>
+        <div class="writer-info">
+          <AppLabel class="no-icon">작성자 : {{ user }}</AppLabel>
+          <AppLabel class="no-icon">작성일자 : {{createdAt }}</AppLabel>
+        </div>
         <el-input
             v-model="title"
             disabled
-            class="inquiry-detail__input"
+            type="textarea"
+            class="inquiry-detail__textarea"
         />
       </div>
-
+      <!--            class="inquiry-detail__input"-->
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의사항 내용</label>
@@ -29,6 +32,10 @@
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의사항 답변</label>
+        <div class="writer-info">
+          <AppLabel class="no-icon">작성자 : {{ admin }}</AppLabel>
+          <AppLabel class="no-icon">답변 일자 : {{answeredAt }}</AppLabel>
+        </div>
         <el-input
             v-model="answer"
             :disabled="!editMode"
@@ -43,7 +50,7 @@
 
         <template v-if="!editMode">
           <el-button type="danger" @click="deleteNotice">삭제</el-button>
-          <el-button type="primary" @click="editMode = true">수정</el-button>
+          <el-button type="primary" @click="editMode = true">답변 달기</el-button>
         </template>
 
 
@@ -82,12 +89,16 @@ const inquiry=ref({
   inquiryAnswer:"",
   userName:"",
   createdAt:"",
+  answerName:"",
+  answeredAt:"",
 })
 const title = ref("");
 const content = ref("");
 const answer = ref("");
 const user = ref("");
 const createdAt = ref("");
+const admin = ref("");
+const answeredAt = ref("");
 
 const fetchDetail = async () => {
   try {
@@ -98,7 +109,9 @@ const fetchDetail = async () => {
     content.value = originalContent.value = data.inquiryContent;
     answer.value = originalAnswer.value =data.inquiryAnswer;
      user.value=data.userName;
-     createdAt.value = data.createdAt;
+    createdAt.value = data.createdAt ? data.createdAt.split("T")[0] : "";
+    admin.value=data.answerName;
+    answeredAt.value = data.answeredAt ? data.answeredAt.split("T")[0] : "";
 
   } catch (err) {
     console.error("문의 상세 조회 실패", err);
@@ -142,6 +155,7 @@ const deleteNotice = async () => {
   }
 };
 
+
 const goBack = () => {
   router.push({ name: "AdminInquiry" });
 };
@@ -152,16 +166,21 @@ onMounted(fetchDetail);
 
 <style scoped>
 .inquiry-detail {
-  background: #fff;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 24px 32px;
-  border-radius: 12px;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .inquiry-detail__title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #5a9dfb;
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
+  color: #5ba0ff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
 .inquiry-detail__card {
@@ -191,5 +210,29 @@ onMounted(fetchDetail);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.available-box-wrapper {
+  margin-left: auto;
+}
+.inventory__header :deep(.app-label__icon) {
+  display: none;
+}
+.writer-info {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end; /* 오른쪽 끝 정렬 */
+  margin-bottom: 8px;
+}
+
+/* 아이콘 제거 */
+:deep(.no-icon .app-label__icon) {
+  display: none !important;
+}
+
+/* AppLabel 크기 조정 */
+:deep(.no-icon.app-label) {
+  padding: 4px 10px;
+  font-size: 13px;
 }
 </style>

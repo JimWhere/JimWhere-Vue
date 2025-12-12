@@ -6,6 +6,7 @@
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의 사항 제목</label>
+
         <el-input
             v-model="title"
             :disabled="!editMode"
@@ -27,6 +28,10 @@
 
       <div class="inquiry-detail__section">
         <label class="inquiry-detail__label">문의사항 답변</label>
+        <div class="writer-info">
+          <AppLabel class="no-icon">작성자 : {{ admin }}</AppLabel>
+          <AppLabel class="no-icon">답변 일자 : {{answeredAt }}</AppLabel>
+        </div>
         <el-input
             v-model="answer"
             :disabled="!editMode"
@@ -49,6 +54,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {inquiryDetail} from "@/api/inquiry.js";
+import AppLabel from "@/components/shared/basic/AppLabel.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -61,6 +67,8 @@ const originalAnswer = ref("");
 const title = ref("");
 const content = ref("");
 const answer = ref("");
+const admin=ref("");
+const answeredAt=ref("");
 
 const fetchDetail = async () => {
   try {
@@ -70,6 +78,8 @@ const fetchDetail = async () => {
     title.value = originalTitle.value = data.inquiryTitle;
     content.value = originalContent.value = data.inquiryContent;
     answer.value = originalAnswer.value = data.inquiryAnswer;
+    admin.value=data.answerName;
+    answeredAt.value = data.answeredAt ? data.answeredAt.split("T")[0] : "";
 
   } catch (err) {
     console.error("문의 상세 조회 실패", err);
@@ -130,4 +140,22 @@ onMounted(fetchDetail);
   justify-content: flex-end;
   gap: 8px;
 }
+.writer-info {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end; /* 오른쪽 끝 정렬 */
+  margin-bottom: 8px;
+}
+
+/* 아이콘 제거 */
+:deep(.no-icon .app-label__icon) {
+  display: none !important;
+}
+
+/* AppLabel 크기 조정 */
+:deep(.no-icon.app-label) {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
 </style>
