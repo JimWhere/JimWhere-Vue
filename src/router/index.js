@@ -88,8 +88,7 @@ const router = createRouter({
                 { path: "notice",name:'AdminNotice', component: AdminNotice },
                 { path: "notice/detail",name:'AdminNoticeDetail', component: AdminNoticeDetail },
                 { path: "notice/create",name:'AdminNoticeCreate', component: AdminNoticeCreate },
-            ],
-            meta: { requiresAdmin: true }
+            ]
         },
 
         {
