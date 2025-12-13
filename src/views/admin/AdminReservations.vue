@@ -191,7 +191,6 @@ const fetchReservations = async () => {
     const res = await adminReservationAll({
       page: page.value,
       size: pageSize.value
-      // 👉 백엔드는 아직 검색 안 쓰니까 page/size만 보냄
     })
     const body = res.data.data
 

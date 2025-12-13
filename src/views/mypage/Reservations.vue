@@ -74,7 +74,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- ✅ Inquiry와 동일한 Element Plus 페이징으로 교체 -->
       <div class="reservations__pagination">
         <el-pagination
             background
@@ -197,17 +196,6 @@ watch(page, fetchReservations)
   width: 100%;
 }
 
-.reservations__table-header {
-  background: #f7fbff !important;
-  color: #333;
-  font-weight: 600;
-  text-align: center;
-}
-
-.table-cell {
-  font-size: 14px;
-}
-
 /* 기간 표시 */
 .period {
   display: flex;
@@ -228,29 +216,10 @@ watch(page, fetchReservations)
   font-size: 12px;
 }
 
-.pay-status--DONE {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.pay-status--PENDING {
-  background: #fff3e0;
-  color: #ef6c00;
-}
-
 .reservations__pagination {
   display: flex;
   justify-content: center;
   margin-top: 16px;
 }
 
-/* 빈 데이터 중앙 정렬(선택) */
-.el-table__empty-block {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.el-table__empty-text {
-  text-align: center;
-}
 </style>
