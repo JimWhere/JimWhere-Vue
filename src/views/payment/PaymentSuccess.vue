@@ -9,18 +9,18 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { confirmPaymentApi } from "@/api/paymentApi";
+import { confirmPaymentApi } from '@/api/paymentApi'
 
 const route = useRoute()
 const router = useRouter()
 const debugText = ref('')
 
-async function confirmPayment() {
-  const paymentKey = route.query.paymentKey as string
-  const orderId = route.query.orderId as string
+const confirmPayment = async () => {
+  const paymentKey = route.query.paymentKey
+  const orderId = route.query.orderId
   const amount = Number(route.query.amount)
 
   if (!paymentKey || !orderId || !amount) {
@@ -37,17 +37,14 @@ async function confirmPayment() {
   try {
     const res = await confirmPaymentApi(token, paymentKey, orderId, amount)
     debugText.value = JSON.stringify(res.data, null, 2)
-  } catch (e: any) {
+  } catch (e) {
     console.error(e)
-    if (e.response) {
-      debugText.value = JSON.stringify(e.response.data, null, 2)
-    } else {
-      debugText.value = String(e)
-    }
+    const err = e && e.response ? e.response.data : e
+    debugText.value = typeof err === 'string' ? err : JSON.stringify(err, null, 2)
   }
 }
 
-function goHome() {
+const goHome = () => {
   router.push('/')
 }
 

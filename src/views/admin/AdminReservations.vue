@@ -10,8 +10,46 @@
 
     <!-- 카드 + 테이블 -->
     <el-card class="reservations__card" shadow="never">
+      <div class="reservations__toolbar">
+        <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="~"
+            start-placeholder="시작일"
+            end-placeholder="종료일"
+            format="YYYY.MM.DD"
+            value-format="YYYY-MM-DD"
+            size="small"
+            style="margin-right: 8px"
+        />
+
+        <el-select
+            v-model="searchType"
+            size="small"
+            style="width: 120px; margin-right: 8px"
+        >
+          <el-option label="대표자명" value="ownerName" />
+          <el-option label="사업자번호" value="businessNumber" />
+        </el-select>
+
+        <el-input
+            v-model="keyword"
+            class="search-input"
+            size="small"
+            placeholder="검색어 입력"
+            style="width: 200px; margin-right: 8px"
+        />
+
+        <el-button type="primary" size="small" @click="handleSearch">
+          검색
+        </el-button>
+        <el-button size="small" @click="handleReset">
+          초기화
+        </el-button>
+      </div>
+
       <el-table
-          :data="rows"
+          :data="filteredRows"
           v-loading="loading"
           border
           stripe
@@ -97,9 +135,8 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted, watch } from "vue"
+import { ref, computed, onMounted, watch } from "vue"
 import dayjs from "dayjs"
 import AppPagination from "@/components/shared/form/AppPagination.vue"
 import { adminReservationAll } from "@/api/admin"
@@ -111,6 +148,42 @@ const pageSize = ref(10)
 const totalPages = ref(1)
 const loading = ref(false)
 
+// 검색 관련 상태
+const keyword = ref("")
+const searchType = ref("ownerName") // ownerName | businessNumber
+const dateRange = ref([])           // [startDate, endDate]
+
+// 화면에 실제로 보여줄 필터링된 rows
+const filteredRows = computed(() => {
+  let list = rows.value ?? []
+
+  // 키워드 필터
+  if (keyword.value && searchType.value) {
+    const key = keyword.value.trim()
+    if (key) {
+      if (searchType.value === "ownerName") {
+        list = list.filter(r => r.ownerName?.includes(key))
+      } else if (searchType.value === "businessNumber") {
+        list = list.filter(r => r.businessNumber?.includes(key))
+      }
+    }
+  }
+
+  // 기간 필터 (dateRange: ["YYYY-MM-DD", "YYYY-MM-DD"])
+  if (dateRange.value && dateRange.value.length === 2) {
+    const [start, end] = dateRange.value
+    list = list.filter(r => {
+      if (!r.startAt || !r.endAt) return false
+      const startDate = dayjs(r.startAt).format("YYYY-MM-DD")
+      const endDate = dayjs(r.endAt).format("YYYY-MM-DD")
+      // [선택한 기간]과 예약 기간이 하나라도 겹치면 포함
+      return !(end < startDate || endDate < start)
+    })
+  }
+
+  return list
+})
+
 // API 호출
 const fetchReservations = async () => {
   loading.value = true
@@ -118,6 +191,7 @@ const fetchReservations = async () => {
     const res = await adminReservationAll({
       page: page.value,
       size: pageSize.value
+      // 👉 백엔드는 아직 검색 안 쓰니까 page/size만 보냄
     })
     const body = res.data.data
 
@@ -154,10 +228,20 @@ const paymentStatusLabel = (row) => {
   return "결제 대기"
 }
 
+const handleSearch = () => {
+  page.value = 1
+}
+
+const handleReset = () => {
+  keyword.value = ""
+  searchType.value = "ownerName"
+  dateRange.value = []
+  page.value = 1
+}
+
 onMounted(fetchReservations)
 watch(page, fetchReservations)
 </script>
-
 
 <style scoped>
 .reservations {
@@ -200,15 +284,15 @@ watch(page, fetchReservations)
   overflow: hidden;
 }
 
-.reservations__table {
-  width: 100%;
+.reservations__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-.reservations__table-header {
-  background: #f7fbff !important;
-  color: #333;
-  font-weight: 600;
-  text-align: center;
+.reservations__table {
+  width: 100%;
 }
 
 /* 기간 표시 */
@@ -230,21 +314,6 @@ watch(page, fetchReservations)
   font-size: 12px;
 }
 
-.pay-status--DONE {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.pay-status--PENDING {
-  background: #fff3e0;
-  color: #ef6c00;
-}
-
-.pay-status--REFUNDED {
-  background: #e8eaf6;
-  color: #3949ab;
-}
-
 /* 페이지네이션 */
 .reservations__pagination {
   display: flex;
@@ -252,13 +321,8 @@ watch(page, fetchReservations)
   margin-top: 16px;
 }
 
-/* 테이블 empty 상태 중앙 정렬 */
-.el-table__empty-block {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.reservations__toolbar .search-input :deep(.el-input__wrapper) {
+  box-shadow: none !important;
 }
-.el-table__empty-text {
-  text-align: center;
-}
+
 </style>
