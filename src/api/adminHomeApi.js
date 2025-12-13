@@ -30,3 +30,9 @@ export const fetchInquiryStats = async () => {
     const res = await api.get("/admin/inquiry/stats");
     return res.data.data;  // { total, completed, pending }
 };
+
+export const getRoomDetail = (roomCode) =>
+    api.get(`/room/${roomCode}`).then(res => res.data.data);
+
+export const getBoxesByRoom = (roomCode) =>
+    api.get(`/room/${roomCode}/boxes`).then(res => res.data.data);

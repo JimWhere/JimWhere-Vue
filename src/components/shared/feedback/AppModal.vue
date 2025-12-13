@@ -3,8 +3,8 @@
     <div class="app-modal__body"><slot /></div>
     <template #footer>
       <div class="app-modal__footer">
-        <el-button @click="handleClose">취소</el-button>
-        <el-button type="primary" @click="$emit('confirm')">확인</el-button>
+<!--        <el-button @click="handleClose">취소</el-button>-->
+<!--        <el-button type="primary" @click="$emit('confirm')">확인</el-button>-->
       </div>
     </template>
   </el-dialog>
