@@ -45,58 +45,58 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import dayjs from 'dayjs'
-import axios from 'axios'
+<script setup>
+import { computed, ref } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import dayjs from "dayjs"
+import axios from "axios"
 
-declare const TossPayments: any
+// API 설정
+const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8081"
 
-// .env.development 에서 읽음 (없으면 fallback)
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8081'
-
+// 라우터
 const route = useRoute()
 const router = useRouter()
 
+// 상태값
 const loading = ref(false)
-const errorMessage = ref('')
-const debugText = ref('')
+const errorMessage = ref("")
+const debugText = ref("")
 
-// 쿼리 파라미터로 넘어온 값들
+// 쿼리로 넘어온 데이터
 const roomCode = Number(route.query.roomCode)
-const roomTypeCode = String(route.query.roomTypeCode)
-const startAt = (route.query.startAt as string) || ''
-const endAt = (route.query.endAt as string) || ''
+const roomTypeCode = Number(route.query.roomTypeCode)
+const startAt = route.query.startAt || ""
+const endAt = route.query.endAt || ""
 const amount = Number(route.query.amount)
-const roomTypeName = (route.query.roomTypeName as string) || 'A'
+const roomTypeName = route.query.roomTypeName || "A"
 
-// 화면 표시용
+// 화면 표시용 포맷
 const formattedStart = computed(() =>
-    startAt ? dayjs(startAt).format('YYYY.MM.DD') : '-'
+    startAt ? dayjs(startAt).format("YYYY.MM.DD") : "-"
 )
 const formattedEnd = computed(() =>
-    endAt ? dayjs(endAt).format('YYYY.MM.DD') : '-'
+    endAt ? dayjs(endAt).format("YYYY.MM.DD") : "-"
 )
 const formattedAmount = computed(() =>
-    amount ? amount.toLocaleString() : '0'
+    amount ? amount.toLocaleString() : "0"
 )
 
-// 버튼 클릭 시 예약 + 결제 준비까지 처리
+// 예약 + 결제 처리
 const handleReserveAndPay = async () => {
-  errorMessage.value = ''
-  debugText.value = ''
+  errorMessage.value = ""
+  debugText.value = ""
 
-  const token = localStorage.getItem('accessToken')
+  const token = localStorage.getItem("accessToken")
   if (!token) {
-    errorMessage.value = '로그인이 필요합니다. 다시 로그인 후 이용해주세요.'
-    await router.push('/login')
+    errorMessage.value = "로그인이 필요합니다. 다시 로그인 후 이용해주세요."
+    await router.push("/login")
     return
   }
 
   // 필수 값 체크
   if (!roomCode || !roomTypeCode || !startAt || !endAt || !amount) {
-    errorMessage.value = '예약 정보가 올바르지 않습니다. 다시 시도해주세요.'
+    errorMessage.value = "예약 정보가 올바르지 않습니다. 다시 시도해주세요."
     debugText.value = JSON.stringify(
         { roomCode, roomTypeCode, startAt, endAt, amount },
         null,
@@ -116,42 +116,41 @@ const handleReserveAndPay = async () => {
           roomTypeCode,
           startAt,
           endAt,
-          reservationAmount: amount,
+          reservationAmount: amount
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+            "Content-Type": "application/json"
+          }
         }
     )
 
     const reservationBody = reservationRes.data
     if (!reservationBody.success) {
       errorMessage.value =
-          reservationBody.message || '예약 생성에 실패했습니다.'
+          reservationBody.message || "예약 생성에 실패했습니다."
       debugText.value = JSON.stringify(reservationBody, null, 2)
       return
     }
 
     const reservationCode = reservationBody.data.reservationCode
 
-    // 2) 결제 준비 (INIT)
+    // 2) 결제 INIT 요청
     const initRes = await axios.post(
         `${API_BASE}/api/v1/user/payments/init`,
         { reservationCode },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+            "Content-Type": "application/json"
+          }
         }
     )
 
     const initBody = initRes.data
     if (!initBody.success) {
-      errorMessage.value =
-          initBody.message || '결제 준비에 실패했습니다.'
+      errorMessage.value = initBody.message || "결제 준비에 실패했습니다."
       debugText.value = JSON.stringify(initBody, null, 2)
       return
     }
@@ -159,17 +158,24 @@ const handleReserveAndPay = async () => {
     const data = initBody.data
 
     // 3) Toss 결제창 호출
-    const tossPayments = TossPayments(data.clientKey)
-    tossPayments.requestPayment('CARD', {
+    if (!window.TossPayments) {
+      errorMessage.value = "결제 모듈을 불러오지 못했습니다."
+      return
+    }
+
+    const tossPayments = window.TossPayments(data.clientKey)
+
+    tossPayments.requestPayment("CARD", {
       amount: data.amount,
       orderId: data.orderId,
       orderName: data.orderName,
       successUrl: data.successUrl,
-      failUrl: data.failUrl,
+      failUrl: data.failUrl
     })
-  } catch (e: any) {
-    console.error('예약/결제 시작 중 오류:', e)
-    errorMessage.value = '예약/결제 시작 중 오류가 발생했습니다.'
+  } catch (e) {
+    console.error("예약/결제 시작 중 오류:", e)
+    errorMessage.value = "예약/결제 시작 중 오류가 발생했습니다."
+
     if (e.response) {
       debugText.value = JSON.stringify(e.response.data, null, 2)
     } else {
