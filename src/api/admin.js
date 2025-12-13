@@ -4,13 +4,10 @@ import api from "@/axios";
 
 
 
-export async function adminInOutHistoryAll({ page, size }) {
-    return await api.get('/admin/inout/history', {
-      params: {
-        page: page - 1,
-        size: size,
-      }
-    });
+export async function adminInOutHistoryAll(params) {
+  return api.get('/admin/inout/history', {
+    params
+  })
 }
 
 export async function adminInquiryAll({ page, size }) {
@@ -42,8 +39,13 @@ export async function adminNoticeUpdate(code,request) {
 export async function adminNoticeDelete(code) {
   return await api.delete(`/admin/notice/${code}`, {
   });
-}export async function adminBoxListAll() {
-  return await api.get('/admin/room/boxes', {
+}export async function adminBoxListAll(roomCode,{ page, size }) {
+  return api.get('/admin/room/boxes',{
+    params: {
+      roomCode: roomCode || null,
+      page: page - 1,
+      size: size,
+    }
   });
 }
 export async function adminReservationAll({ page, size }) {

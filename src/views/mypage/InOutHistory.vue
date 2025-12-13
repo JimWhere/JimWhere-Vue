@@ -3,6 +3,44 @@
     <div class="inout-history__header">
       <h2>입출고내역</h2>
       <span class="inout-history__desc">입출고 로그 내역</span>
+      <div class="inout-history__search">
+        <el-select
+            v-model="searchField"
+            size="small"
+            style="width: 120px"
+        >
+          <el-option label="전체" value="ALL" />
+          <el-option label="입출고 번호" value="inOutHistoryCode" />
+          <el-option label="방 번호" value="roomCode" />
+          <el-option label="박스 이름" value="boxName" />
+          <el-option label="물품 이름" value="inOutName" />
+          <el-option label="유형" value="inOutType" />
+        </el-select>
+        <el-select
+            v-if="searchField === 'inOutType'"
+            v-model="searchText"
+            size="small"
+            placeholder="유형 선택"
+            style="width: 220px"
+        >
+          <el-option label="입고" value="IN" />
+          <el-option label="출고" value="OUT" />
+        </el-select>
+
+
+        <el-input
+            v-else
+            v-model="searchText"
+            size="small"
+            placeholder="검색어 입력"
+            style="width: 220px"
+            @keyup.enter="goSearch"
+        />
+
+        <el-button type="primary" size="small" @click="goSearch">
+          검색
+        </el-button>
+      </div>
     </div>
 
     <el-card class="inout-history__card" shadow="never">
@@ -19,12 +57,26 @@
             align="center"
         />
 
+        <el-table-column
+            prop="boxName"
+            label="박스 이름"
+            width="100"
+            align="center"
+        />
+
 
         <el-table-column label="유형" width="120" align="center">
           <template #default="{ row }">
-            {{ row.inOutType === 'IN' ? '입고' : '출고' }}
+    <span
+        :class="row.inOutType === 'IN'
+          ? 'inout-type--in'
+          : 'inout-type--out'"
+    >
+      {{ row.inOutType === 'IN' ? '입고' : '출고' }}
+    </span>
           </template>
         </el-table-column>
+
 
 
         <el-table-column
@@ -38,6 +90,12 @@
         <el-table-column
             prop="inOutQuantity"
             label="수량"
+            width="100"
+            align="center"
+        />
+        <el-table-column
+            prop="roomCode"
+            label="방"
             width="100"
             align="center"
         />
@@ -111,23 +169,21 @@ const loading = ref(false)
 const rows = ref([])
 
 const page = ref(1)
-const pageSize = ref(5)
+const pageSize = ref(10)
 const total = ref(0)
+const searchField = ref('ALL')
+const searchText = ref('')
 
 const fetchStockInOut = async () => {
   loading.value = true
   try {
-    const res = await userInoutHistory({
-      page: page.value,
-      size: pageSize.value
-    })
-
-    console.log("INOUT RAW:", res.data)
+    const res = await userInoutHistory(
+        buildSearchParams()
+    )
 
     const data = res.data.data
-    rows.value = data.content        // 리스트
-    total.value = data.totalElements // 페이지 total
-
+    rows.value = data.content
+    total.value = data.totalElements
   } catch (err) {
     console.error('입출고 내역 조회 실패', err)
   } finally {
@@ -135,19 +191,53 @@ const fetchStockInOut = async () => {
   }
 }
 
+const buildSearchParams = () => {
+  const params = {
+    page: page.value - 1,
+    size: pageSize.value
+  }
+
+  if (searchField.value === 'ALL' || !searchText.value) {
+    return params
+  }
+
+  switch (searchField.value) {
+    case 'roomCode':
+    case 'inOutHistoryCode': {
+      const num = Number(searchText.value)
+      if (!Number.isNaN(num)) {
+        params[searchField.value] = num
+      }
+      break
+    }
+    case 'inOutType':
+      params.inOutType = searchText.value
+      break
+    default:
+      params[searchField.value] = searchText.value.trim()
+  }
+
+  return params
+}
+
+
 const editDialogVisible = ref(false)
 const editRow = ref({
   inOutHistoryCode: null,
   inOutType: 'IN',
   inOutName: '',
-  inOutQuantity: 1,
+  roomCode: 0,
+  boxName: '',
 })
 
 const goDetail = (row) => {
   editRow.value = { ...row } // 선택한 row 복사
   editDialogVisible.value = true
 }
-
+const goSearch = async () => {
+  page.value = 1
+  await fetchStockInOut()
+}
 const confirmEdit = async () => {
 
   const { inOutHistoryCode, ...payload } = editRow.value
@@ -162,7 +252,12 @@ const handleCurrentChange = (newPage) => {
   page.value = newPage
 }
 
-watch(page, fetchStockInOut)
+/*watch([page, searchField], () => {
+  if (searchField.value !== 'ALL') {
+    searchText.value = ''
+  }
+})*/
+watch(page,fetchStockInOut)
 
 onMounted(fetchStockInOut)
 </script>
@@ -219,5 +314,20 @@ onMounted(fetchStockInOut)
   border-radius: 8px !important;
   box-shadow: none !important;
 }
+.inout-history__search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.inout-type--in {
+  color: #1e88e5;        /* 파란색 */
+  font-weight: 600;
+}
+
+.inout-type--out {
+  color: #e53935;        /* 빨간색 */
+  font-weight: 600;
+}
 </style>

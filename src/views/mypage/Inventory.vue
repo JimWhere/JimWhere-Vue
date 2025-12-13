@@ -81,9 +81,7 @@ const fetchNoticeList = async () => {
     total.value = data.length
 
   } catch (e) {
-    console.error("공지사항 조회 실패", e)
-    console.log(res.data)
-    console.log("Server response:", err.response?.data);
+    console.error("재고 조회 실패", e)
   } finally {
     loading.value = false
   }
