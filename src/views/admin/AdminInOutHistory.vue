@@ -4,6 +4,34 @@
     <div class="inout-history__header">
       <h2>입출고내역</h2>
       <span class="inout-history__desc">기간별 입출고 이력</span>
+      <div class="inout-history__search">
+        <el-select
+            v-model="searchField"
+            placeholder="검색 조건"
+            size="small"
+            style="width: 120px"
+        >
+          <el-option
+              v-for="opt in searchFieldOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+          />
+        </el-select>
+
+        <!-- 검색 입력 -->
+        <el-input
+            v-model="searchText"
+            placeholder="검색어 입력"
+            size="small"
+            style="width: 220px"
+            @keyup.enter="goSearch"
+        />
+
+        <el-button type="primary" size="small" @click="goSearch">
+          검색
+        </el-button>
+      </div>
     </div>
 
     <el-card class="inout-history__card" shadow="never">
@@ -20,11 +48,23 @@
             width="120"
             align="center"
         />
+        <el-table-column
+            prop="boxName"
+            label="박스 이름"
+            width="120"
+            align="center"
+        />
 
 
         <el-table-column label="유형" width="120" align="center">
           <template #default="{ row }">
-            {{ row.inOutType === 'IN' ? '입고' : '출고' }}
+    <span
+        :class="row.inOutType === 'IN'
+          ? 'inout-type--in'
+          : 'inout-type--out'"
+    >
+      {{ row.inOutType === 'IN' ? '입고' : '출고' }}
+    </span>
           </template>
         </el-table-column>
 
@@ -122,25 +162,53 @@ const loading = ref(false)
 const rows = ref([])
 
 const page = ref(1)
-const pageSize = ref(5)
+const pageSize = ref(10)
 const total = ref(0)
+const roomCode= ref(0)
 
-const fetchStockInOut = async () => {
+const searchFieldOptions = [
+    { label: '전체', value: 'ALL' },
+  { label: '방 번호', value: 'roomCode' },
+  { label: '박스 이름', value: 'boxName' },
+  { label: '유저 ID', value: 'userId' }
+]
+
+const searchField = ref('ALL')
+const searchText = ref('')
+const buildSearchParams = () => {
+  const params = {
+    page: page.value - 1,
+    size: pageSize.value
+  }
+
+  if (
+      searchField.value === 'ALL' ||
+      !searchText.value.trim()
+  ) {
+    return params
+  }
+
+  // roomCode는 숫자로 변환
+  if (searchField.value === 'roomCode') {
+    params.roomCode = Number(searchText.value)
+  } else {
+    params[searchField.value] = searchText.value.trim()
+  }
+
+  return params
+}
+const fetchNoticeList = async () => {
   loading.value = true
   try {
-    const res = await adminInOutHistoryAll({
-      page: page.value,
-      size: pageSize.value
-    })
-
-    console.log("INOUT RAW:", res.data)
+    const res = await adminInOutHistoryAll(
+        buildSearchParams()
+    )
 
     const data = res.data.data
-    rows.value = data.content        // 리스트
-    total.value = data.totalElements // 페이지 total
-
-  } catch (err) {
-    console.error('입출고 내역 조회 실패', err)
+    rows.value = data.content
+    total.value = data.totalElements
+  } catch (e) {
+    console.error('조회 실패', e)
   } finally {
     loading.value = false
   }
@@ -160,22 +228,30 @@ const goDetail = (row) => {
 }
 
 const confirmEdit = async () => {
+  try {
+    const {inOutHistoryCode, ...payload} = editRow.value
+    await updateInOutHistory(inOutHistoryCode, payload)
 
-  const { inOutHistoryCode, ...payload } = editRow.value
-  console.log("수정된 데이터:", payload)
-  console.log("수정된:", inOutHistoryCode)
-  await updateInOutHistory(inOutHistoryCode,payload)
-
-  editDialogVisible.value = false
+    alert('재고가 수정되었습니다.')
+    window.location.reload()
+    editDialogVisible.value = false
+  }catch(err) {
+    alert('물품 입/출고에 실패 하였습니다.')
+  }
 }
+const goSearch = async () => {
+  page.value = 1
+  await fetchNoticeList()
+}
+
 
 const handleCurrentChange = (newPage) => {
   page.value = newPage
 }
 
-watch(page, fetchStockInOut)
+watch(page, fetchNoticeList)
 
-onMounted(fetchStockInOut)
+onMounted(fetchNoticeList)
 </script>
 
 <style scoped>
@@ -222,5 +298,20 @@ onMounted(fetchStockInOut)
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
+}
+.inout-history__search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.inout-type--in {
+  color: #1e88e5;        /* 파란색 */
+  font-weight: 600;
+}
+
+.inout-type--out {
+  color: #e53935;        /* 빨간색 */
+  font-weight: 600;
 }
 </style>

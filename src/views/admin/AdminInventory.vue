@@ -3,8 +3,31 @@
 
     <div class="inventory__header">
       <h2>재고 현황 관리</h2>
-      <span class="inventory__desc">고객님이 대여한 방의 재고 현황을 표시합니다.</span>
+      <!-- 🔍 검색 영역 -->
+      <div class="inventory__search">
+        <!-- 검색 조건 (고정: 방 번호) -->
+        <el-select
+            v-model="searchField"
+            size="small"
+            style="width: 120px"
+            disabled
+        >
+          <el-option label="방 번호" value="roomCode" />
+        </el-select>
 
+        <!-- 방 번호 입력 -->
+        <el-input
+            v-model="roomCode"
+            placeholder="방 번호 입력"
+            size="small"
+            style="width: 220px"
+            @keyup.enter="goSearch"
+        />
+
+        <el-button type="primary" size="small" @click="goSearch">
+          검색
+        </el-button>
+      </div>
     </div>
 
 
@@ -40,9 +63,25 @@
             align="center"
         >
         </el-table-column>
+          <el-table-column
+              prop="roomCode"
+              label="방 번호"
+              width="160"
+              align="center"
+          >
+        </el-table-column>
 
       </el-table>
-
+      <div class="inventory__pagination">
+        <el-pagination
+            background
+            layout="prev, pager, next"
+            :current-page="page"
+            :page-size="pageSize"
+            :total="total"
+            @current-change="handlePageChange"
+        />
+      </div>
     </el-card>
   </div>
 </template>
@@ -59,30 +98,40 @@ const loading = ref(false)
 const rows = ref([])
 
 const page = ref(1)
-const pageSize = ref(5)
+const pageSize = ref(10)
 const total = ref(0)
+const searchField = ref('roomCode') // 고정
+const roomCode = ref('')
+
+
+
 const availableBoxCount =ref(0)
 
 
 const fetchNoticeList = async () => {
   loading.value = true
   try {
-    const res = await adminBoxListAll();
-
+    const res = await adminBoxListAll(
+        roomCode.value ? Number(roomCode.value) : null,
+        {
+          page: page.value,
+          size: pageSize.value
+        }
+    )
 
     const data = res.data.data
-    rows.value = data
-    total.value = data.length
-
+    rows.value = data.content
+    total.value = data.totalElements
   } catch (e) {
-    console.error("공지사항 조회 실패", e)
-    console.log(res.data)
-    console.log("Server response:", err.response?.data);
+    console.error('재고 조회 실패', e)
   } finally {
     loading.value = false
   }
 }
-
+const goSearch = async () => {
+  page.value = 1
+  await fetchNoticeList()
+}
 
 const handlePageChange = (newPage) => {
   page.value = newPage
@@ -135,9 +184,15 @@ onMounted(fetchNoticeList)
   overflow: hidden;
 }
 
-/*.inventory__pagination {
+.inventory__pagination {
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
-}*/
+}
+.inventory__search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 </style>

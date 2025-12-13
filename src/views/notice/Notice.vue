@@ -17,7 +17,7 @@
 
         <el-table-column
             prop="noticeCode"
-            label="공지사항 ID"
+            label="공지사항 번호"
             width="140"
             align="center"
         >
