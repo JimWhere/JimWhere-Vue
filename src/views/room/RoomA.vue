@@ -19,8 +19,7 @@
               <div class="bed-label">{{ bed.label }}</div>
 
               <template v-if="hasVisibleBox(bed.label)">
-                <div class="box-content">{{ getBox(bed.label).boxContent || '-' }}</div>
-                <div class="box-count">{{ getBox(bed.label).boxCurrentCount ?? 0 }} 개</div>
+                <div class="box-filled">보관 중</div>
               </template>
               <template v-else>
                 <div class="box-empty">보관 가능</div>
@@ -51,7 +50,9 @@
 
         <div class="calendar">
           <div class="calendar-header">
-            <span>{{ currentYear }}년 {{ currentMonth + 1 }}월</span>
+            <button type="button" class="calendar-nav prev" @click="prevMonth">‹</button>
+            <span>{{ displayedYear }}년 {{ displayedMonth + 1 }}월</span>
+            <button type="button" class="calendar-nav next" @click="nextMonth">›</button>
           </div>
           <div class="calendar-grid">
             <div class="calendar-day-name" v-for="d in dayNames" :key="d">
@@ -67,7 +68,8 @@
                 'is-empty': !cell.date,
                 'is-start': cell.isStart,
                 'is-end': cell.isEnd,
-                'is-in-range': cell.isInRange
+                'is-in-range': cell.isInRange,
+                'is-reserved': cell.isReserved
               }"
                 @click="onClickDate(cell)"
             >
@@ -95,6 +97,7 @@ import { listBoxesByRoom } from '@/api/box';
 import { watch } from 'vue'
 import router from "@/router/index.js";
 import AppDropdown from '@/components/shared/form/AppDropdown.vue';
+import { checkOverlap, fetchReservedRanges } from '@/api/reservations'
 
 const route = useRoute();
 const boxes = ref([]);
@@ -167,8 +170,8 @@ const formattedTotal = computed(() =>
     totalPrice.value.toLocaleString('ko-KR')
 )
 
-const currentYear = today.getFullYear()
-const currentMonth = today.getMonth()
+const displayedYear = ref(today.getFullYear())
+const displayedMonth = ref(today.getMonth())
 const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 const parseDate = (str) => {
@@ -185,13 +188,15 @@ const isSameDay = (d1, d2) =>
     d1.getDate() === d2.getDate()
 
 const calendarCells = computed(() => {
-  const first = new Date(currentYear, currentMonth, 1)
-  const last = new Date(currentYear, currentMonth + 1, 0)
+  const first = new Date(displayedYear.value, displayedMonth.value, 1)
+  const last = new Date(displayedYear.value, displayedMonth.value + 1, 0)
   const cells = []
   const offset = first.getDay()
 
   const start = parseDate(startDate.value)
   const end = parseDate(endDate.value)
+
+  // note: compute isReserved per-cell below (fullDate is defined per iteration)
 
   for (let i = 0; i < offset; i++) {
     cells.push({
@@ -200,15 +205,18 @@ const calendarCells = computed(() => {
       isStart: false,
       isEnd: false,
       isInRange: false,
+      isReserved: false,
     })
   }
 
   for (let d = 1; d <= last.getDate(); d++) {
-    const fullDate = new Date(currentYear, currentMonth, d)
+    const fullDate = new Date(displayedYear.value, displayedMonth.value, d)
     const isToday = isSameDay(fullDate, today)
     const isStart = isSameDay(fullDate, start)
     const isEnd = isSameDay(fullDate, end)
     const isInRange = start && end && fullDate >= start && fullDate <= end
+    const dateStr = toInputValue(fullDate)
+    const isReserved = (typeof reservedDateSet !== 'undefined') && reservedDateSet.value && reservedDateSet.value.has && reservedDateSet.value.has(dateStr)
 
     cells.push({
       date: d,
@@ -217,6 +225,7 @@ const calendarCells = computed(() => {
       isStart,
       isEnd,
       isInRange,
+      isReserved,
     })
   }
 
@@ -227,44 +236,75 @@ const calendarCells = computed(() => {
       isStart: false,
       isEnd: false,
       isInRange: false,
+      isReserved: false,
     })
   }
 
   return cells
 })
 
+// 날짜 클릭 처리 및 월 이동 기능 추가
+function onClickDate(cell) {
 
-const onClickDate = (cell) => {
-  if (!cell.date || !cell.fullDate) return
+  if (cell?.isReserved) {
+    alert('이미 예약된 날짜입니다.')
+    return
+  }
 
-  const clicked = cell.fullDate
+  if (!cell || !cell.date || !cell.fullDate) return
+  const clicked = new Date(cell.fullDate.getFullYear(), cell.fullDate.getMonth(), cell.fullDate.getDate())
+
+  // 항상 클릭한 날짜의 달을 보여주도록 조정
+  displayedYear.value = clicked.getFullYear()
+  displayedMonth.value = clicked.getMonth()
+
   const s = parseDate(startDate.value)
   const e = parseDate(endDate.value)
 
-  if (!s || (s && e)) {
+  // 선택 초기화 (둘 다 비어있거나 둘 다 채워져 있을 경우) -> 시작일로 설정
+  if (!startDate.value || (startDate.value && endDate.value)) {
     startDate.value = toInputValue(clicked)
     endDate.value = ''
     return
   }
 
-  if (clicked < s) {
-    endDate.value = toInputValue(s)
-    startDate.value = toInputValue(clicked)
-  } else if (isSameDay(clicked, s)) {
-    endDate.value = ''
+  // 시작일만 있는 경우: 클릭한 날짜가 시작일 이전이면 시작일 갱신, 이후면 종료일로 설정
+  if (s && !endDate.value) {
+    if (clicked <= s) {
+      startDate.value = toInputValue(clicked)
+      endDate.value = ''
+    } else {
+      endDate.value = toInputValue(clicked)
+    }
+  }
+}
+
+function prevMonth() {
+  if (displayedMonth.value === 0) {
+    displayedYear.value -= 1
+    displayedMonth.value = 11
   } else {
-    endDate.value = toInputValue(clicked)
+    displayedMonth.value -= 1
+  }
+}
+
+function nextMonth() {
+  if (displayedMonth.value === 11) {
+    displayedYear.value += 1
+    displayedMonth.value = 0
+  } else {
+    displayedMonth.value += 1
   }
 }
 
 // 예약하기 -> 리다이렉트 
-const goToReservation = () => {
-  // selectedRoom 정규화 (v-model이 object일 경우 대비)
+const goToReservation = async () => {
+  // selectedRoom 정규화
   const sel = selectedRoom.value
   const roomStr = (typeof sel === 'string') ? sel : (sel?.value ?? sel?.label ?? 'A1')
 
-  // roomCode 매핑 (예: A1..A5 -> 1..5, B1..B5 -> 6..10, C1..C5 -> 11..15)
-  function mapRoomToCodeLocal(roomName) {
+  // roomCode 매핑 (이미 정의된 로직과 동일)
+  const mapRoomToCodeLocal = (roomName) => {
     if (!roomName) return 1
     const prefix = roomName[0].toUpperCase()
     const num = Number(roomName.slice(1)) || 1
@@ -274,7 +314,6 @@ const goToReservation = () => {
     return num
   }
 
-  // roomTypeCode 매핑 (백엔드 규칙에 맞게 수정하세요)
   function mapRoomTypeToCode(roomNameOrType) {
     // 예: A/B/C -> 1/2/3  (필요하면 'S','M','L' 규칙으로 변경)
     const ch = (typeof roomNameOrType === 'string' ? roomNameOrType[0] : String(roomNameOrType)).toUpperCase()
@@ -287,29 +326,55 @@ const goToReservation = () => {
   const roomCode = mapRoomToCodeLocal(roomStr)
   const roomTypeCode = mapRoomTypeToCode(roomStr) // 숫자
   const roomTypeName = roomStr[0].toUpperCase() // 예: 'A' 또는 필요하면 다른 값 사용
-
-  // startDate/endDate에 시간 붙이기 (예: '2025-12-20' -> '2025-12-20T12:00:00')
-  // 원하는 시간이 있으면 변경하세요.
-  const timeSuffix = 'T12:00:00'
+  const timeSuffix = 'T12:00:00' // 서버와 약속된 시간 포맷 사용
   const startAtISO = startDate.value ? `${startDate.value}${timeSuffix}` : ''
   const endAtISO = endDate.value ? `${endDate.value}${timeSuffix}` : ''
-
   const amount = totalPrice.value
 
-  // 디버그 로그 확인
-  console.log({ roomStr, roomCode, roomTypeCode, roomTypeName, startAtISO, endAtISO, amount })
+  // 기본 유효성 검사
+  if (!startAtISO || !endAtISO) {
+    alert('시작일과 종료일을 선택해주세요.')
+    return
+  }
+  if (new Date(startAtISO) >= new Date(endAtISO)) {
+    alert('종료일은 시작일보다 이후여야 합니다.')
+    return
+  }
 
-  router.push({
-    path: '/payments/request',
-    query: {
-      roomCode: String(roomCode),
-      roomTypeCode: String(roomTypeCode), // 숫자 형식이 필요하면 그대로
-      startAt: startAtISO,
-      endAt: endAtISO,
-      amount: String(amount),
-      roomTypeName, // 문자열
-    },
-  })
+  try {
+    // 1) 사전 겹침 확인 호출 (reservations API helper)
+    const overlap = await checkOverlap(Number(roomCode), startAtISO, endAtISO)
+    if (overlap) {
+      alert('선택하신 기간에 이미 예약이 존재합니다. 다른 날짜를 선택하세요.')
+      return
+    }
+    
+    // 3) 결제 페이지로 이동 (쿼리 전달)
+    router.push({
+      path: '/payments/request',
+      query: {
+        roomCode: String(roomCode),
+        roomTypeCode: String(roomTypeCode), // 숫자 형식이 필요하면 그대로
+        startAt: startAtISO,
+        endAt: endAtISO,
+        amount: String(amount),
+        roomTypeName, // 문자열
+      }
+    })
+  } catch (err) {
+    console.error('예약 흐름 오류', err)
+    // check 호출 실패(파싱/서버 에러)
+    if (err.response) {
+      if (err.response.status === 409) {
+        alert('선택하신 기간에 이미 예약이 있습니다.')
+        return
+      }
+      const msg = err.response.data?.message ?? err.response.data?.error
+      alert(msg ?? '예약 처리 중 오류가 발생했습니다.')
+      return
+    }
+    alert('네트워크 오류가 발생했습니다. 다시 시도하세요.')
+  }
 }
 
 // Box 매핑에서 label에 대응하는 항목을 안전하게 반환
@@ -320,6 +385,7 @@ function getBox(label) {
 // 화면에 박스 정보를 보여줘야 하는지 여부 판단
 function hasVisibleBox(label) {
   const b = getBox(label)
+  console.log('BoxLabel', b)
   if (!b) return false
   const content = b.boxContent
   const count = Number(b.boxCurrentCount ?? 0)
@@ -329,24 +395,31 @@ function hasVisibleBox(label) {
 
 const boxMap = computed(() => {
   const map = {}
+  const prefixes = ['a','A','b','B','c','C'] // 필요하면 확장
+
   boxes.value.forEach(b => {
     const raw = b.boxCode ?? b.boxLabel ?? b.box_id ?? b.label ?? b.boxName
     if (!raw) return
-    const s = String(raw)
+    const s = String(raw).trim()
 
-    // map raw forms
+    // 원본 형태들
     map[s] = b
     map[s.toLowerCase()] = b
     map[s.toUpperCase()] = b
 
-    // numeric part (e.g., API returns '1' but bed label is 'a1')
+    // 숫자 부분 추출 (예: "B12" -> "12")
     const num = s.replace(/\D/g, '')
     if (num) {
+      // 숫자만(예: "12")
       map[num] = b
-      map['a' + num] = b
-      map['A' + num] = b
+
+      // 모든 접두사 조합 생성
+      prefixes.forEach(p => {
+        map[p + num] = b
+      })
     }
   })
+
   return map
 })
 
@@ -356,6 +429,16 @@ function mapRoomToCode(roomName) {
   const prefix = roomName[0].toUpperCase()
   const num = Number(roomName.slice(1)) || 1
   if (prefix === 'A') return num
+}
+
+// roomCode -> selectedRoom
+function mapRoomCodeToName(code) {
+  if (!code) return null
+  const n = Number(code)
+  if (n >= 1 && n <= 5) return `A${n}`
+  if (n >= 6 && n <= 10) return `B${n - 5}`
+  if (n >= 11 && n <= 15) return `C${n - 10}`
+  return null
 }
 
 // fetch 함수 
@@ -376,12 +459,78 @@ async function fetchBoxesForRoom(roomName) {
 
 // 초기 호출과 watch 연결
 onMounted(() => {
+  // query로 roomCode가 전달되면 selectedRoom 설정
+  const qc = route.query.roomCode
+  if (qc) {
+    const rn = mapRoomCodeToName(qc)
+    if (rn) selectedRoom.value = rn
+  }
+
   fetchBoxesForRoom(selectedRoom.value)
+  loadReservedForDisplayedMonth()
 })
 
 watch(selectedRoom, (newVal) => {
   fetchBoxesForRoom(newVal)
+  loadReservedForDisplayedMonth()
 })
+
+watch([displayedYear, displayedMonth], () => {
+  loadReservedForDisplayedMonth()
+})
+
+watch(() => route.query.roomCode, (newCode) => {
+  const rn = mapRoomCodeToName(newCode)
+  if (rn) selectedRoom.value = rn
+})
+
+const reservedRanges = ref([])
+const reservedDateSet = ref(new Set())
+
+function addDays(date, n) {
+  const d = new Date(date)
+  d.setDate(d.getDate() + n)
+  return d
+}
+
+function buildReservedDateSet() {
+  const set = new Set()
+  reservedRanges.value.forEach(r => {
+    const start = new Date(r.startAt)
+    const end = new Date(r.endAt)
+    // end 포함/미포함 규칙은 서버 약속에 맞춰 조정
+    let cur = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+    const last = new Date(end.getFullYear(), end.getMonth(), end.getDate())
+    while (cur <= last) {
+      set.add(toInputValue(cur)) // YYYY-MM-DD 포맷(이미 있는 toInputValue 사용)
+      cur = addDays(cur, 1)
+    }
+  })
+  reservedDateSet.value = set
+}
+
+// 보이는 달 기준으로 서버 호출 함수 추가
+async function loadReservedForDisplayedMonth() {
+  const first = new Date(displayedYear.value, displayedMonth.value, 1)
+  const last = new Date(displayedYear.value, displayedMonth.value + 1, 0)
+  const from = toInputValue(first)
+  const to = toInputValue(last)
+  const roomCode = mapRoomToCode(selectedRoom.value) // 기존 mapRoomToCode 사용
+
+  try {
+    const res = await fetchReservedRanges(roomCode, from, to)
+    const data = res.data ?? res
+    reservedRanges.value = Array.isArray(data) ? data : (data?.data ?? [])
+    buildReservedDateSet()
+  } catch (err) {
+    console.error('reserved fetch failed', err)
+    reservedRanges.value = []
+    reservedDateSet.value = new Set()
+  }
+}
+
+
+
 
 </script>
 
@@ -390,7 +539,7 @@ watch(selectedRoom, (newVal) => {
 @import "@/assets/shared/styles/font.css";
 
 .page {
-  padding-left:5%;
+  /* padding-left:5%; */
   display: flex;
   flex-direction: row;
   font-family: var(--app-font);
@@ -405,7 +554,7 @@ watch(selectedRoom, (newVal) => {
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   padding: 5%;
-  margin-right: 10%;
+  margin-right: 1.5%;
 }
 .booking-card {
   background: var(--color-surface, #ffffff);
@@ -511,7 +660,10 @@ watch(selectedRoom, (newVal) => {
   padding: 16px;
 }
 
-.calendar-header { text-align: center; font-weight: var(--app-font-weight-semibold); margin-bottom: 12px }
+.calendar-header { text-align: center; font-weight: var(--app-font-weight-semibold); margin-bottom: 12px; display:flex; align-items:center; justify-content:center; gap:12px }
+
+.calendar-nav { background: transparent; border: none; cursor: pointer; font-size:18px; padding:4px 8px; border-radius:6px }
+.calendar-nav:hover { background: rgba(0,0,0,0.04) }
 
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px }
 
@@ -531,6 +683,12 @@ watch(selectedRoom, (newVal) => {
 .calendar-cell.is-in-range { background: var(--color-primary-100, #d4e5ff) }
 .calendar-cell.is-start, .calendar-cell.is-end { background: var(--color-primary, #78b3ff); color: var(--color-on-primary, #ffffff); font-weight: var(--app-font-weight-semibold) }
 .calendar-cell.is-today { border: 1px solid var(--color-primary-500, #4b7bec); box-shadow: 0 0 0 2px rgba(75, 123, 236, 0.2) }
+
+.calendar-cell.is-reserved {
+  background: #f5f5f7;
+  color: #9aa0a6;
+  cursor: not-allowed;
+}
 
 .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px }
 .price-row .price { font-size: 18px }

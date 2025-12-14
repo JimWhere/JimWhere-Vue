@@ -81,25 +81,33 @@ const rooms = [
     id: 'C',
     title: 'Room C',
     description: '최대 단위의 짐 대여공간 입니다',
-    dimension: "50 X 50 X 50 (단위 : cm)",
+    dimension: "100 X 100 X 100 (단위 : cm)",
     imageUrl: roomCImg,
   },
 ]
 
 const goDetail = async (roomId) => {
+  const mapRoomToCode = (id) => {
+    if (!id) return 1
+    const ch = id[0].toUpperCase()
+    if (ch === 'A') return 1
+    if (ch === 'B') return 6
+    if (ch === 'C') return 11
+    return 1
+  }
+
+  const roomCode = mapRoomToCode(roomId)
   try {
-    const roomCode = 1
     const apiRes = await listBoxesByRoom(roomCode)
     console.log('API Response:', apiRes)
-
-    router.push({ name: 'RoomDetail', params: { roomId } })
-
   } catch (err) {
     console.error('박스 목록 조회 실패', err)
-
+    // 실패해도 상세 페이지로 이동하도록 함
   }
-  // 상세 페이지 라우팅 (예시)
-  router.push({ name: 'RoomDetail', params: { roomId } })
+
+  // 상세 페이지 라우팅: RoomA/RoomB/RoomC 이름 사용 (router에 해당 named route가 있어야 함)
+  const routeName = `Room${String(roomId).toUpperCase()}`
+  router.push({ name: routeName, query: { roomCode: String(roomCode) } })
 }
 </script>
 
