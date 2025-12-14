@@ -110,7 +110,7 @@ const handleReserveAndPay = async () => {
 
     // 1) 예약 생성
     const reservationRes = await axios.post(
-        `${API_BASE}/api/v1/user/reservations`,
+        `${API_BASE}/user/reservations`,
         {
           roomCode,
           roomTypeCode,
