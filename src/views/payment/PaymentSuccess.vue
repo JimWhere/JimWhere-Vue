@@ -49,17 +49,6 @@ const goHome = () => {
 }
 
 onMounted(() => {
-  // 1. 토스에서 넘어온 경우 (ngrok)
-  if (location.hostname.includes('ngrok')) {
-    // 쿼리스트링 그대로 유지해서 jimwhere.local 로 이동
-    const query = route.fullPath.split('?')[1] || ''
-    window.location.replace(
-        `http://jimwhere.local/payments/success${query ? '?' + query : ''}`
-    )
-    return
-  }
-
-  // 2. jimwhere.local 에 도착했을 때만 결제 확정 API 호출
   confirmPayment()
 })
 </script>
