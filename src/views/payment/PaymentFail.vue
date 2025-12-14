@@ -17,6 +17,17 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  // ngrok 도메인으로 들어온 경우
+  if (location.hostname.includes('ngrok')) {
+    const query = route.fullPath.split('?')[1] || ''
+    window.location.replace(
+        `http://jimwhere.local/payments/fail${query ? '?' + query : ''}`
+    )
+  }
+})
 
 const route = useRoute()
 const router = useRouter()
