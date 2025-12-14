@@ -138,7 +138,7 @@ const handleReserveAndPay = async () => {
 
     // 2) 결제 INIT 요청
     const initRes = await axios.post(
-        `${API_BASE}/api/v1/user/payments/init`,
+        `${API_BASE}/user/payments/init`,
         { reservationCode },
         {
           headers: {
