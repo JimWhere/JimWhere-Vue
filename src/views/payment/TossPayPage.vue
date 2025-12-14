@@ -172,6 +172,7 @@ const handleReserveAndPay = async () => {
       successUrl: data.successUrl,
       failUrl: data.failUrl
     })
+    console.log(import.meta.env.VITE_TOSS_SUCCESS_URL)
   } catch (e) {
     console.error("예약/결제 시작 중 오류:", e)
     errorMessage.value = "예약/결제 시작 중 오류가 발생했습니다."
