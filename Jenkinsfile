@@ -11,6 +11,9 @@ spec:
     image: node:20-alpine
     command: ["cat"]
     tty: true
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
 
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
@@ -19,16 +22,23 @@ spec:
     - name: docker-config
       mountPath: /kaniko/.docker/config.json
       subPath: .dockerconfigjson
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
 
   - name: kubectl
-    image: bitnami/kubectl:latest
+    image: alpine/k8s:1.29.4
     command: ["cat"]
     tty: true
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
 
   volumes:
   - name: docker-config
     secret:
       secretName: dockerhub-secret
+  - name: workspace-volume
+    emptyDir: {}
 """
     }
   }
@@ -56,7 +66,7 @@ spec:
         container('kaniko') {
           sh '''
             /kaniko/executor \
-              --context=dir:///home/jenkins/agent/workspace/${JOB_NAME} \
+              --context=dir:///home/jenkins/agent/workspace/jimwhere-frontend-ci-cd \
               --dockerfile=Dockerfile \
               --destination=docker.io/kimsangjaedocker/jimwhere-front:latest
           '''
@@ -69,6 +79,7 @@ spec:
         container('kubectl') {
           sh '''
             kubectl rollout restart deployment jimwhere-frontend -n jimwhere
+            kubectl rollout status deployment jimwhere-frontend -n jimwhere
           '''
         }
       }
