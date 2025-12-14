@@ -4,6 +4,8 @@ import Header from '@/components/shared/header/Header.vue'
 import {useRoute} from "vue-router";
 
 const route = useRoute()
+console.log('API BASE:', import.meta.env.VITE_API_BASE)
+console.log('SUCCESS URL:', import.meta.env.VITE_TOSS_SUCCESS_URL)
 
 </script>
 

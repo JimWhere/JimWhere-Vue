@@ -15,16 +15,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-const code = route.query.code as string | undefined
-const message = route.query.message as string | undefined
+/* 쿼리 파라미터 */
+const code = route.query.code
+const message = route.query.message
 
-function goHome() {
+const goHome = () => {
   router.push('/')
 }
 </script>
