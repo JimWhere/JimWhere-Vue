@@ -5,6 +5,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  serviceAccountName: jenkins
   containers:
   - name: node
     image: node:20-alpine
@@ -18,6 +19,11 @@ spec:
     - name: docker-config
       mountPath: /kaniko/.docker/config.json
       subPath: .dockerconfigjson
+
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ["cat"]
+    tty: true
 
   volumes:
   - name: docker-config
@@ -45,7 +51,7 @@ spec:
       }
     }
 
-    stage('Docker Build & Push (Kaniko)') {
+    stage('Docker Build & Push') {
       steps {
         container('kaniko') {
           sh '''
@@ -53,6 +59,16 @@ spec:
               --context=dir:///home/jenkins/agent/workspace/${JOB_NAME} \
               --dockerfile=Dockerfile \
               --destination=docker.io/kimsangjaedocker/jimwhere-front:latest
+          '''
+        }
+      }
+    }
+
+    stage('Rollout Restart (Frontend)') {
+      steps {
+        container('kubectl') {
+          sh '''
+            kubectl rollout restart deployment jimwhere-frontend -n jimwhere
           '''
         }
       }
