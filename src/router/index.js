@@ -57,6 +57,8 @@ import AdminInOutHistory from "@/views/admin/AdminInOutHistory.vue";
 import RoomA from "@/views/room/RoomA.vue"
 import RoomB from "@/views/room/RoomB.vue"
 import RoomC from "@/views/room/RoomC.vue"
+import EntryRequestSample from "@/views/entry/EntryRequestSample.vue";
+import EntryQrResponse from "@/views/entry/EntryQrResponse.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -160,7 +162,16 @@ const router = createRouter({
             path: '/entry/request',
             name: 'EntryRequest',
             component: EntryRequestView
+        },        {
+            path: '/entry/request/sample',
+            name: 'EntryRequestSample',
+            component: EntryRequestSample,
         },
+      {
+        path: '/entry/qr/response',
+        name: 'EntryQrResponse',
+        component: EntryQrResponse,
+      },
 
         {
             path: '/alarm',

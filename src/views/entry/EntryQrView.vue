@@ -4,6 +4,7 @@ import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library'
 import logo from '@/assets/shared/logo/logo.png'
 import approvedImg from '@/assets/shared/overlay/approved.png'
 import deniedImg from '@/assets/shared/overlay/denied.png'
+import {verifyToken} from "@/api/entry.js";
 
 /* 로컬 캐시 키 */
 const JM_TICKET_KEY = 'jm_entryTicket'
@@ -136,23 +137,16 @@ function onSubmitManual() {
 
 /* 실제 서버 통신 부분 (엔드포인트만 맞게 수정해서 쓰면 됨) */
 async function verifyTokenWithServer(token) {
-  /* TODO: 엔드포인트 주소 및 응답 스펙에 맞게 수정 */
-  const res = await fetch('/api/v1/entry/verify', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ token }),
-  })
-
-  if (!res.ok) {
+  try {
+    const res = await verifyToken(token) // axios response
+    return res?.data?.success === true && res?.data?.data?.status === 'AUTHORIZED'
+  } catch (e) {
+    // 4xx/5xx면 axios가 throw 함
+    console.error('verify failed:', e?.response?.status, e?.response?.data || e)
     return false
   }
-
-  const data = await res.json()
-
-  return data.status === 'AUTHORIZED'
 }
+
 
 /* ZXing 카메라 초기화 */
 async function initCamera() {
