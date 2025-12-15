@@ -239,13 +239,18 @@ const goSearch = async () => {
   await fetchStockInOut()
 }
 const confirmEdit = async () => {
-
-  const { inOutHistoryCode, ...payload } = editRow.value
-  console.log("수정된 데이터:", payload)
-  console.log("수정된:", inOutHistoryCode)
-  await updateInOutHistory(inOutHistoryCode,payload)
-
-  editDialogVisible.value = false
+ try {
+   const {inOutHistoryCode, ...payload} = editRow.value
+   console.log("수정된 데이터:", payload)
+   console.log("수정된:", inOutHistoryCode)
+   await updateInOutHistory(inOutHistoryCode, payload)
+   handleCurrentChange()
+   editDialogVisible.value = false
+ }
+ catch(e){
+   console.log(e)
+   alert( "입출고 변경 실패!");
+ }
 }
 
 const handleCurrentChange = (newPage) => {
